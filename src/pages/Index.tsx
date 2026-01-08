@@ -101,26 +101,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto max-w-4xl">
-          <div className="glass-card p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 pointer-events-none" />
-            <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Ready to take control of your workload?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-                Join thousands of students who've reduced their stress and improved their grades.
-              </p>
-              <Button variant="glow" size="xl" asChild>
-                <Link to="/signup">Get Started Free</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-border/50">
         <div className="container mx-auto max-w-6xl">
