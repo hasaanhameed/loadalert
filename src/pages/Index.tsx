@@ -56,17 +56,6 @@ const Index = () => {
               high-stress periods — so you can plan smarter and avoid last-minute panic.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button variant="heroFilled" size="xl" asChild>
-                <Link to="/signup" className="group">
-                  Sign Up
-                  <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button variant="hero" size="xl" asChild>
-                <Link to="/login">Login</Link>
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -104,14 +93,9 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-border/50">
         <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              <span className="font-semibold text-foreground">LoadAlert</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              © 2026 LoadAlert. Built for students, by students.
-            </p>
+          <div className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            <span className="font-semibold text-foreground">LoadAlert</span>
           </div>
         </div>
       </footer>
