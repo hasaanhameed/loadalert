@@ -3,19 +3,71 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Activity, ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // UI only - no actual auth logic
-    console.log("Signup attempted:", { name, email, password });
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/user/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (response.ok) {
+        setIsSuccess(true);
+      } else {
+        const data = await response.json();
+        setError(data.detail || "Failed to create account");
+      }
+    } catch (err) {
+      setError("Failed to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 py-12">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="w-full max-w-md relative">
+          <div className="glass-card p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <CheckCircle className="h-16 w-16 text-green-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Account Created!</h1>
+            <p className="text-muted-foreground mb-8">
+              Your account has been successfully created. You can now log in.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Button variant="glow" size="lg" asChild className="w-full">
+                <Link to="/login">Go to Login</Link>
+              </Button>
+              <Button variant="outline" size="lg" asChild className="w-full">
+                <Link to="/">Return to Home</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">
@@ -40,6 +92,12 @@ const Signup = () => {
             <h1 className="text-2xl font-bold text-foreground">Create your account</h1>
             <p className="text-muted-foreground mt-2">Start managing your deadlines today</p>
           </div>
+
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/50 text-destructive rounded-lg p-3 mb-5 text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
@@ -96,8 +154,8 @@ const Signup = () => {
               </div>
             </div>
 
-            <Button type="submit" variant="glow" size="lg" className="w-full">
-              Create Account
+            <Button type="submit" variant="glow" size="lg" className="w-full" disabled={isLoading}>
+              {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 
