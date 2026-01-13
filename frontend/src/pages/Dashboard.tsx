@@ -3,20 +3,42 @@ import { StatsCard } from "@/components/StatsCard";
 import { RiskBadge } from "@/components/RiskBadge";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { Activity, Calendar, AlertTriangle, TrendingUp, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getDashboardSummary, DashboardSummary } from "@/api/dashboard";
+import { useAuth } from "@/context/AuthContext";
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
-const weeklyData = [
-  { day: "Mon", stressLevel: 35, deadlines: 2 },
-  { day: "Tue", stressLevel: 45, deadlines: 1 },
-  { day: "Wed", stressLevel: 72, deadlines: 3 },
-  { day: "Thu", stressLevel: 85, deadlines: 4 },
-  { day: "Fri", stressLevel: 60, deadlines: 2 },
-  { day: "Sat", stressLevel: 25, deadlines: 1 },
-  { day: "Sun", stressLevel: 15, deadlines: 0 },
-];
-
 const Dashboard = () => {
+  const { token } = useAuth();
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        if (!token) return;
+        const data = await getDashboardSummary(token);
+        setSummary(data);
+      } catch (error) {
+        console.error("Failed to load dashboard summary", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSummary();
+  }, [token]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <span className="text-muted-foreground">Loading dashboard...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-12">
       <Navbar />
@@ -26,42 +48,44 @@ const Dashboard = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Your weekly workload overview at a glance.</p>
+            <p className="text-muted-foreground">
+              Your weekly workload overview at a glance.
+            </p>
           </div>
 
           {/* Stats Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatsCard
               title="Weekly Stress Score"
-              value="68%"
-              subtitle="Higher than last week"
+              value="—"
+              subtitle="Coming soon"
               icon={Activity}
-              variant="warning"
+              variant="default"
             />
             <StatsCard
               title="Risk Level"
-              value="Medium"
-              subtitle="Based on upcoming deadlines"
+              value="—"
+              subtitle="Coming soon"
               icon={AlertTriangle}
-              variant="warning"
+              variant="default"
             />
             <StatsCard
               title="Upcoming Deadlines"
-              value="7"
+              value={summary?.upcoming_deadlines.toString() ?? "0"}
               subtitle="In the next 7 days"
               icon={Calendar}
               variant="default"
             />
             <StatsCard
               title="Hours Needed"
-              value="24h"
+              value={`${summary?.total_hours ?? 0}h`}
               subtitle="Estimated total effort"
               icon={Clock}
               variant="default"
             />
           </div>
 
-          {/* High Risk Warning */}
+          {/* High Risk Warning (placeholder – AI later) */}
           <div className="glass-card p-6 mb-8 border-warning/30 bg-warning/5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="p-3 rounded-xl bg-warning/10">
@@ -69,11 +93,10 @@ const Dashboard = () => {
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-foreground mb-1">
-                  High-Risk Week Ahead
+                  Stress Insights
                 </h3>
                 <p className="text-muted-foreground">
-                  Thursday is predicted to be your most stressful day with 4 deadlines. 
-                  Consider starting preparations early to manage your workload effectively.
+                  Stress predictions and insights will appear here once AI analysis is enabled.
                 </p>
               </div>
               <div className="flex gap-3">
@@ -90,44 +113,57 @@ const Dashboard = () => {
           {/* Charts Row */}
           <div className="grid lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2">
-              <WeeklyChart data={weeklyData} />
+              <WeeklyChart
+                data={
+                  summary?.weekly_load.map(day => ({
+                    day: day.day,
+                    deadlines: day.deadlines,
+                    hours: day.hours,
+                  })) ?? []
+                }
+              />
             </div>
 
             <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Quick Stats</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Quick Stats
+              </h3>
+
               <div className="space-y-6">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Current Risk Level</span>
+                    <span className="text-sm text-muted-foreground">
+                      Current Risk Level
+                    </span>
                   </div>
                   <RiskBadge level="medium" size="lg" />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Peak Stress Day</span>
-                    <span className="text-sm font-medium text-foreground">Thursday</span>
+                    <span className="text-sm text-muted-foreground">
+                      Peak Stress Day
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      —
+                    </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-[85%] bg-destructive rounded-full" />
+                    <div className="h-full w-[0%] bg-destructive rounded-full" />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Week Progress</span>
-                    <span className="text-sm font-medium text-foreground">40%</span>
+                    <span className="text-sm text-muted-foreground">
+                      Week Progress
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      —
+                    </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-[40%] bg-primary rounded-full" />
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-border/50">
-                  <div className="flex items-center gap-2 text-success">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-sm font-medium">2 tasks completed this week</span>
+                    <div className="h-full w-[0%] bg-primary rounded-full" />
                   </div>
                 </div>
               </div>
@@ -144,7 +180,9 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                 Manage Deadlines
               </h3>
-              <p className="text-sm text-muted-foreground">Add, edit, or remove deadlines</p>
+              <p className="text-sm text-muted-foreground">
+                Add, edit, or remove deadlines
+              </p>
             </Link>
 
             <Link
@@ -155,7 +193,9 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                 Stress Breakdown
               </h3>
-              <p className="text-sm text-muted-foreground">See what's causing stress</p>
+              <p className="text-sm text-muted-foreground">
+                See what's causing stress
+              </p>
             </Link>
 
             <Link
@@ -166,7 +206,9 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                 Get Priorities
               </h3>
-              <p className="text-sm text-muted-foreground">Know what to work on first</p>
+              <p className="text-sm text-muted-foreground">
+                Know what to work on first
+              </p>
             </Link>
           </div>
         </div>

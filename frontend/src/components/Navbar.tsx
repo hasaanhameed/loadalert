@@ -13,6 +13,16 @@ const navLinks = [
   { name: "Profile", path: "/profile", icon: User },
 ];
 
+const privateLinks = [
+  { name: "Home", path: "/", icon: Activity },
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  { name: "Deadlines", path: "/deadlines", icon: Calendar },
+  { name: "Stress Overview", path: "/stress", icon: BarChart3 },
+  { name: "Profile", path: "/profile", icon: User },
+];
+
+
+
 export const Navbar = () => {
   const location = useLocation();
   const { user } = useUser();
@@ -26,8 +36,9 @@ export const Navbar = () => {
             <span className="text-lg font-semibold text-foreground">LoadAlert</span>
           </Link>
 
+          {user && (
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {privateLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link
@@ -45,6 +56,8 @@ export const Navbar = () => {
               );
             })}
           </div>
+        )}
+
 
           <div className="flex items-center gap-3">
             {user ? (

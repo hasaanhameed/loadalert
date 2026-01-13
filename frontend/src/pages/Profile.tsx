@@ -3,8 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Mail, Bell, Shield, LogOut } from "lucide-react";
+import { useUser } from "@/context/UserContext";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { updateUser } from "@/api/users";
 
 const Profile = () => {
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState(user?.name ?? "");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [loading, setLoading] = useState(false);
+
   return (
     <div className="min-h-screen pb-12">
       <Navbar />
@@ -24,8 +35,8 @@ const Profile = () => {
                 <User className="h-10 w-10 text-primary" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-foreground">John Doe</h2>
-                <p className="text-muted-foreground">john.doe@university.edu</p>
+                <h2 className="text-xl font-semibold text-foreground">{user?.name}</h2>
+                <p className="text-muted-foreground">{user?.email}</p>
               </div>
             </div>
 
@@ -35,10 +46,10 @@ const Profile = () => {
                   Full Name
                 </Label>
                 <Input
-                  id="name"
-                  defaultValue="John Doe"
-                  className="bg-muted/50 border-border/50 focus:border-primary"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
+
               </div>
 
               <div className="space-y-2">
@@ -46,35 +57,34 @@ const Profile = () => {
                   Email Address
                 </Label>
                 <Input
-                  id="email"
                   type="email"
-                  defaultValue="john.doe@university.edu"
-                  className="bg-muted/50 border-border/50 focus:border-primary"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
+
               </div>
 
-              <Button variant="heroFilled" className="mt-4">
-                Save Changes
+              <Button
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    const updatedUser = await updateUser({ name, email });
+                    setUser(updatedUser);
+                  } catch (err: any) {
+                    alert(err.response?.data?.detail || "Failed to update profile");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>
 
           {/* Settings Links */}
           <div className="glass-card divide-y divide-border/50">
-            <button className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left group">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Bell className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                  Notification Settings
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Manage deadline reminders and alerts
-                </p>
-              </div>
-            </button>
-
             <button className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left group">
               <div className="p-2 rounded-lg bg-primary/10">
                 <Shield className="h-5 w-5 text-primary" />
@@ -89,7 +99,12 @@ const Profile = () => {
               </div>
             </button>
 
-            <button className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left group">
+            <button
+            onClick={() => {
+              setUser(null);
+              navigate("/");
+            }}
+            className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left group">
               <div className="p-2 rounded-lg bg-destructive/10">
                 <LogOut className="h-5 w-5 text-destructive" />
               </div>

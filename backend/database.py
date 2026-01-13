@@ -12,7 +12,7 @@ if ENV_PATH.exists():
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set. Define it in local .env or Railway variables.")
+    raise ValueError("DATABASE_URL is not set.")
 
 # Fix postgres:// → postgresql:// for SQLAlchemy
 if DATABASE_URL.startswith("postgres://"):

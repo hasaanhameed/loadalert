@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser, getEmailFromToken, getUserByEmail } from "@/api/auth";
+import { loginUser } from "@/api/auth";
 import { useUser } from "@/context/UserContext";
+import { useAuth } from "@/context/AuthContext";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,35 +15,27 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useUser();
+  const { login } = useAuth();
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
     try {
-      // 1. Login → get token
       const data = await loginUser(email, password);
-      localStorage.setItem("access_token", data.access_token);
   
-      // 2. Extract email from token
-      const emailFromToken = getEmailFromToken(data.access_token);
-      if (!emailFromToken) {
-        throw new Error("Invalid token");
-      }
+      // store token through auth context (keeps isAuthenticated in sync)
+      login(data.access_token);
   
-      // 3. Fetch user by email
-      const user = await getUserByEmail(emailFromToken);
+      // store user directly
+      setUser(data.user);
   
-      // 4. Set global user state
-      setUser(user);
-  
-      // 5. Redirect to home
       navigate("/");
     } catch (error) {
       console.error(error);
-      alert(error instanceof Error ? error.message : "Login failed");
+      alert("Login failed");
     }
-  };
+  };  
   
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">
@@ -107,16 +100,6 @@ const Login = () => {
                 </button>
               </div>
             </div>
-
-            <div className="flex items-center justify-end">
-              <Link
-                to="#"
-                className="text-sm text-primary hover:text-primary/80 transition-colors"
-              >
-                Forgot password?
-              </Link>
-            </div>
-
             <Button type="submit" variant="glow" size="lg" className="w-full">
               Sign In
             </Button>

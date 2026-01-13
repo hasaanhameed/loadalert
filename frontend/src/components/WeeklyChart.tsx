@@ -1,10 +1,12 @@
 import { cn } from "@/lib/utils";
 
-interface DayData {
+type DayData = {
   day: string;
-  stressLevel: number;
+  hours: number;
   deadlines: number;
-}
+  stressLevel?: number; // optional
+};
+
 
 interface WeeklyChartProps {
   data: DayData[];
