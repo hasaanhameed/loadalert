@@ -69,7 +69,7 @@ class DashboardSummary(BaseModel):
     total_hours: int
     weekly_load: list[WeeklyLoadDay]
 
-# ---- AI STRESS PREDICTION ----
+""" ---- AI STRESS PREDICTION ---- """
 
 class StressPredictionDayInput(BaseModel):
     day: str

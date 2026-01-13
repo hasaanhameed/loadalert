@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {fetchDeadlines,createDeadline,updateDeadline,deleteDeadline} from "@/api/deadlines";
+import { invalidateAIPredictionCache } from "@/utils/aiCache";
 
 import { Navbar } from "@/components/Navbar";
 import { DeadlineCard, Deadline } from "@/components/DeadlineCard";
@@ -90,6 +91,9 @@ const Deadlines = () => {
   
       setIsModalOpen(false);
       setEditingDeadline(null);
+      
+      // Invalidate AI prediction cache since deadlines changed
+      invalidateAIPredictionCache();
     } catch (err) {
       console.error("Failed to save deadline", err);
     }
@@ -104,6 +108,9 @@ const Deadlines = () => {
     try {
       await deleteDeadline(Number(id));
       setDeadlines((prev) => prev.filter((d) => d.id !== id));
+      
+      // Invalidate AI prediction cache since deadlines changed
+      invalidateAIPredictionCache();
     } catch (err) {
       console.error("Failed to delete deadline", err);
     }

@@ -5,7 +5,9 @@ import { WeeklyChart } from "@/components/WeeklyChart";
 import { Activity, Calendar, AlertTriangle, TrendingUp, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDashboardSummary, DashboardSummary } from "@/api/dashboard";
+import { getStressPrediction, StressPredictionResponse } from "@/api/ai";
 import { useAuth } from "@/context/AuthContext";
+import { generateWeeklyLoadHash, getCachedPrediction, cachePrediction } from "@/utils/aiCache";
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,14 +15,41 @@ import { Button } from "@/components/ui/button";
 const Dashboard = () => {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [stressPrediction, setStressPrediction] = useState<StressPredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
-    const fetchSummary = async () => {
+    const fetchData = async () => {
       try {
         if (!token) return;
+        
+        // Fetch dashboard summary
         const data = await getDashboardSummary(token);
         setSummary(data);
+
+        // Fetch AI stress prediction if there's data
+        if (data.weekly_load && data.weekly_load.length > 0) {
+          const currentHash = generateWeeklyLoadHash(data.weekly_load);
+          
+          // Check cache first
+          const cachedPrediction = getCachedPrediction(currentHash);
+          if (cachedPrediction) {
+            setStressPrediction(cachedPrediction);
+          } else {
+            // Only call AI if cache is invalid or missing
+            setAiLoading(true);
+            try {
+              const prediction = await getStressPrediction(token, data.weekly_load);
+              setStressPrediction(prediction);
+              cachePrediction(currentHash, prediction);
+            } catch (error) {
+              console.error("Failed to load stress prediction", error);
+            } finally {
+              setAiLoading(false);
+            }
+          }
+        }
       } catch (error) {
         console.error("Failed to load dashboard summary", error);
       } finally {
@@ -28,13 +57,46 @@ const Dashboard = () => {
       }
     };
 
-    fetchSummary();
+    fetchData();
   }, [token]);
+
+  // Get risk color for styling
+  const getRiskColor = (level: string) => {
+    switch (level) {
+      case "low":
+        return "text-green-500";
+      case "medium":
+        return "text-yellow-500";
+      case "high":
+        return "text-red-500";
+      default:
+        return "text-muted-foreground";
+    }
+  };
+
+  // Get peak stress day percentage
+  const getPeakStressPercentage = () => {
+    if (!stressPrediction?.peak_stress_day || !stressPrediction?.daily_stress) return 0;
+    
+    const peakDay = stressPrediction.daily_stress.find(
+      d => d.day === stressPrediction.peak_stress_day
+    );
+    return peakDay ? peakDay.stressLevel : 0;
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <span className="text-muted-foreground">Loading dashboard...</span>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-primary/40 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-1">Loading Dashboard</h2>
+            <p className="text-sm text-muted-foreground">Preparing your workload overview...</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -57,15 +119,15 @@ const Dashboard = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatsCard
               title="Weekly Stress Score"
-              value="—"
-              subtitle="Coming soon"
+              value={aiLoading ? "..." : (stressPrediction?.weekly_stress_score.toString() ?? "—")}
+              subtitle={aiLoading ? "Calculating..." : (stressPrediction ? "AI prediction" : "No data")}
               icon={Activity}
               variant="default"
             />
             <StatsCard
               title="Risk Level"
-              value="—"
-              subtitle="Coming soon"
+              value={aiLoading ? "..." : (stressPrediction?.risk_level.toUpperCase() ?? "—")}
+              subtitle={aiLoading ? "Analyzing..." : (stressPrediction ? "Current status" : "No data")}
               icon={AlertTriangle}
               variant="default"
             />
@@ -85,41 +147,106 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* High Risk Warning (placeholder – AI later) */}
-          <div className="glass-card p-6 mb-8 border-warning/30 bg-warning/5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="p-3 rounded-xl bg-warning/10">
-                <AlertTriangle className="h-6 w-6 text-warning" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground mb-1">
-                  Stress Insights
-                </h3>
-                <p className="text-muted-foreground">
-                  Stress predictions and insights will appear here once AI analysis is enabled.
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button variant="hero" size="sm" asChild>
-                  <Link to="/priorities">View Priorities</Link>
-                </Button>
-                <Button variant="heroFilled" size="sm" asChild>
-                  <Link to="/deadlines">Manage Deadlines</Link>
-                </Button>
+          {/* AI Stress Insights */}
+          {stressPrediction && !aiLoading && (
+            <div className={`glass-card p-6 mb-8 border-${
+              stressPrediction.risk_level === "high" ? "destructive" :
+              stressPrediction.risk_level === "medium" ? "warning" : "green-500"
+            }/30 bg-${
+              stressPrediction.risk_level === "high" ? "destructive" :
+              stressPrediction.risk_level === "medium" ? "warning" : "green-500"
+            }/5`}>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className={`p-3 rounded-xl bg-${
+                  stressPrediction.risk_level === "high" ? "destructive" :
+                  stressPrediction.risk_level === "medium" ? "warning" : "green-500"
+                }/10`}>
+                  <AlertTriangle className={`h-6 w-6 ${
+                    stressPrediction.risk_level === "high" ? "text-destructive" :
+                    stressPrediction.risk_level === "medium" ? "text-warning" : "text-green-500"
+                  }`} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    AI Stress Insights
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {stressPrediction.explanation}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="hero" size="sm" asChild>
+                    <Link to="/priorities">View Priorities</Link>
+                  </Button>
+                  <Button variant="heroFilled" size="sm" asChild>
+                    <Link to="/deadlines">Manage Deadlines</Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Loading state for AI */}
+          {aiLoading && (
+            <div className="glass-card p-6 mb-8 border-primary/30 bg-primary/5">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-primary/10 animate-pulse">
+                  <Activity className="h-6 w-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    Analyzing Your Workload...
+                  </h3>
+                  <p className="text-muted-foreground">
+                    AI is calculating your stress levels and providing insights.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* No data state */}
+          {!stressPrediction && !aiLoading && !loading && (
+            <div className="glass-card p-6 mb-8 border-warning/30 bg-warning/5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="p-3 rounded-xl bg-warning/10">
+                  <AlertTriangle className="h-6 w-6 text-warning" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-1">
+                    No Stress Data Available
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Add some deadlines to get AI-powered stress predictions and insights.
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="heroFilled" size="sm" asChild>
+                    <Link to="/deadlines">Add Deadlines</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Charts Row */}
           <div className="grid lg:grid-cols-3 gap-6 mb-8">
             <div className="lg:col-span-2">
               <WeeklyChart
                 data={
-                  summary?.weekly_load.map(day => ({
-                    day: day.day,
-                    deadlines: day.deadlines,
-                    hours: day.hours,
-                  })) ?? []
+                  summary?.weekly_load.map(day => {
+                    const stressData = stressPrediction?.daily_stress.find(d => d.day === day.day);
+                    // If there are no tasks/deadlines, stress should be 0
+                    const stress = (day.deadlines === 0 && day.hours === 0) 
+                      ? 0 
+                      : stressData?.stressLevel ?? 0;
+                    return {
+                      day: day.day,
+                      deadlines: day.deadlines,
+                      hours: day.hours,
+                      stress: stress
+                    };
+                  }) ?? []
                 }
               />
             </div>
@@ -136,7 +263,11 @@ const Dashboard = () => {
                       Current Risk Level
                     </span>
                   </div>
-                  <RiskBadge level="medium" size="lg" />
+                  {stressPrediction && !aiLoading ? (
+                    <RiskBadge level={stressPrediction.risk_level} size="lg" />
+                  ) : (
+                    <span className="text-sm text-muted-foreground">—</span>
+                  )}
                 </div>
 
                 <div>
@@ -145,25 +276,14 @@ const Dashboard = () => {
                       Peak Stress Day
                     </span>
                     <span className="text-sm font-medium text-foreground">
-                      —
+                      {stressPrediction && !aiLoading ? stressPrediction.peak_stress_day : "—"}
                     </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-[0%] bg-destructive rounded-full" />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">
-                      Week Progress
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      —
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full w-[0%] bg-primary rounded-full" />
+                    <div 
+                      className="h-full bg-destructive rounded-full transition-all duration-500"
+                      style={{ width: `${getPeakStressPercentage()}%` }}
+                    />
                   </div>
                 </div>
               </div>

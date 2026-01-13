@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -14,6 +15,7 @@ const ACCESS_TOKEN_KEY = "access_token";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load token on app start
   useEffect(() => {
@@ -21,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedToken) {
       setToken(storedToken);
     }
+    setIsLoading(false);
   }, []);
 
   const login = (newToken: string) => {
@@ -38,6 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         token,
         isAuthenticated: Boolean(token),
+        isLoading,
         login,
         logout,
       }}

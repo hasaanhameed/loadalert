@@ -49,10 +49,11 @@ Return STRICT JSON ONLY in the following format:
     {{ "day": "Mon", "stressLevel": 42 }}
   ],
   "weekly_stress_score": 55,
-  "risk_level": "low | medium | high",
   "peak_stress_day": "Mon",
   "explanation": "Short human-readable explanation"
 }}
+
+IMPORTANT: Do NOT include "risk_level" in your response. The system will calculate it automatically.
 
 Workload data:
 {json.dumps(prompt_payload, indent=2)}
@@ -84,10 +85,18 @@ Workload data:
     # ----------------------------
 
     try:
+        # Create a mapping of day to workload for validation
+        workload_by_day = {d.day: d for d in request.weekly_load}
+        
         daily_stress = [
             StressPredictionDayOutput(
                 day=d["day"],
-                stressLevel=max(0, min(int(d["stressLevel"]), 100)),
+                # If there are no deadlines or hours, stress must be 0
+                stressLevel=0 if (
+                    workload_by_day.get(d["day"]) and 
+                    workload_by_day[d["day"]].deadlines == 0 and 
+                    workload_by_day[d["day"]].hours == 0
+                ) else max(0, min(int(d["stressLevel"]), 100)),
             )
             for d in data["daily_stress"]
         ]
@@ -96,9 +105,13 @@ Workload data:
             0, min(int(data["weekly_stress_score"]), 100)
         )
 
-        risk_level = data["risk_level"]
-        if risk_level not in {"low", "medium", "high"}:
-            raise ValueError("Invalid risk_level")
+        # Calculate risk level strictly from weekly stress score
+        if weekly_stress_score <= 30:
+            risk_level = "low"
+        elif weekly_stress_score <= 60:
+            risk_level = "medium"
+        else:
+            risk_level = "high"
 
         peak_stress_day = data["peak_stress_day"]
         explanation = data["explanation"]
