@@ -68,3 +68,27 @@ class DashboardSummary(BaseModel):
     upcoming_deadlines: int
     total_hours: int
     weekly_load: list[WeeklyLoadDay]
+
+# ---- AI STRESS PREDICTION ----
+
+class StressPredictionDayInput(BaseModel):
+    day: str
+    hours: int
+    deadlines: int
+
+
+class StressPredictionRequest(BaseModel):
+    weekly_load: list[StressPredictionDayInput]
+
+
+class StressPredictionDayOutput(BaseModel):
+    day: str
+    stressLevel: int  # 0–100
+
+
+class StressPredictionResponse(BaseModel):
+    daily_stress: list[StressPredictionDayOutput]
+    weekly_stress_score: int  # 0–100
+    risk_level: str           # "low" | "medium" | "high"
+    peak_stress_day: str
+    explanation: str
