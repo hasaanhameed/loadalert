@@ -3,60 +3,109 @@ import { PriorityCard } from "@/components/PriorityCard";
 import { Lightbulb, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const priorityTasks = [
-  {
-    id: "1",
-    title: "Physics Lab Report",
-    reason: "Due soonest (Jan 10). Quick win with only 3 hours of work. Completing this first will reduce immediate pressure.",
-    estimatedHours: 3,
-    dueDate: "2026-01-10",
-    priority: 1,
-  },
-  {
-    id: "2",
-    title: "Weekly Reading Response",
-    reason: "Low effort (2 hours) with an upcoming deadline. Knock this out to clear your task list.",
-    estimatedHours: 2,
-    dueDate: "2026-01-11",
-    priority: 2,
-  },
-  {
-    id: "3",
-    title: "CS 301 - Algorithm Analysis Essay",
-    reason: "High importance with significant effort required. Start early to avoid last-minute stress.",
-    estimatedHours: 6,
-    dueDate: "2026-01-12",
-    priority: 3,
-  },
-  {
-    id: "4",
-    title: "Group Project Meeting Prep",
-    reason: "Low effort task. Complete before the meeting to be prepared and contribute effectively.",
-    estimatedHours: 1,
-    dueDate: "2026-01-13",
-    priority: 4,
-  },
-  {
-    id: "5",
-    title: "Statistics Midterm Preparation",
-    reason: "Most time-intensive task. Break into daily study sessions leading up to Jan 14.",
-    estimatedHours: 10,
-    dueDate: "2026-01-14",
-    priority: 5,
-  },
-  {
-    id: "6",
-    title: "History Research Paper Draft",
-    reason: "Medium importance. With earlier tasks completed, dedicate focused time closer to the deadline.",
-    estimatedHours: 8,
-    dueDate: "2026-01-15",
-    priority: 6,
-  },
-];
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { fetchDeadlines } from "@/api/deadlines";
+import { getPriorities } from "@/api/ai";
+import { generatePrioritiesHash, getCachedPriorities, cachePriorities } from "@/utils/aiCache";
 
 const Priorities = () => {
-  const totalHours = priorityTasks.reduce((sum, t) => sum + t.estimatedHours, 0);
+  const { token } = useAuth();
+  const [priorities, setPriorities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadPriorities = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const deadlines = await fetchDeadlines();
+
+        const tasks = deadlines.map((d: any) => ({
+          id: d.id,
+          title: d.title,
+          due_date: d.due_date,
+          estimated_effort: d.estimated_hours || d.estimated_effort,
+          importance_level: d.importance || d.importance_level,
+        }));
+
+        // Generate hash from current tasks
+        const currentHash = generatePrioritiesHash(tasks);
+        
+        // Try to get cached priorities
+        const cachedData = getCachedPriorities(currentHash);
+        
+        if (cachedData) {
+          // Use cached data
+          console.log("Using cached priorities");
+          const formattedPriorities = cachedData.map((task: any) => ({
+            id: task.id.toString(),
+            title: task.title,
+            reason: task.reason,
+            estimatedHours: task.estimated_effort,
+            dueDate: task.due_date,
+            priority: task.rank,
+          }));
+          setPriorities(formattedPriorities);
+          setLoading(false);
+          return;
+        }
+
+        // No cache, fetch from API
+        console.log("Fetching priorities from API");
+        const result = await getPriorities(token, tasks);
+        
+        // Cache the raw result
+        cachePriorities(currentHash, result.priorities);
+        
+        // Transform snake_case API response to camelCase for PriorityCard
+        const formattedPriorities = result.priorities.map((task: any) => ({
+          id: task.id.toString(),
+          title: task.title,
+          reason: task.reason,
+          estimatedHours: task.estimated_effort,
+          dueDate: task.due_date,
+          priority: task.rank,
+        }));
+        
+        setPriorities(formattedPriorities);
+      } catch (err) {
+        console.error("Failed to load priorities", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPriorities();
+  }, [token]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            <div
+              className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-primary/40 rounded-full animate-spin"
+              style={{ animationDirection: "reverse", animationDuration: "1.5s" }}
+            ></div>
+          </div>
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-1">
+              Loading Priorities
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Preparing your priority recommendations...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
 
   return (
     <div className="min-h-screen pb-12">
@@ -68,7 +117,7 @@ const Priorities = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">Priority Recommendations</h1>
             <p className="text-muted-foreground">
-              {priorityTasks.length} tasks • {totalHours}h total effort • Ordered by recommended priority
+              {priorities.length} tasks • Ordered by recommended priority
             </p>
           </div>
 
@@ -92,11 +141,19 @@ const Priorities = () => {
           </div>
 
           {/* Priority List */}
-          <div className="space-y-4 mb-8">
-            {priorityTasks.map((task, index) => (
-              <PriorityCard key={task.id} task={task} rank={index + 1} />
-            ))}
-          </div>
+          {priorities.length > 0 ? (
+            <div className="space-y-4 mb-8">
+              {priorities.map((task) => (
+                <PriorityCard key={task.id} task={task} rank={task.priority} />
+              ))}
+            </div>
+          ) : (
+            <div className="glass-card p-8 text-center mb-8">
+              <p className="text-muted-foreground">
+                No tasks found. Add some deadlines to get priority recommendations.
+              </p>
+            </div>
+          )}
 
           {/* Action Section */}
           <div className="glass-card p-8 text-center">

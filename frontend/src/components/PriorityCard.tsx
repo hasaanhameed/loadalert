@@ -53,8 +53,6 @@ export const PriorityCard = ({ task, rank }: PriorityCardProps) => {
             </div>
           </div>
         </div>
-
-        <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
       </div>
     </div>
   );

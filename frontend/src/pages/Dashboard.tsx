@@ -83,6 +83,7 @@ const Dashboard = () => {
     );
     return peakDay ? peakDay.stressLevel : 0;
   };
+  const peakStress = getPeakStressPercentage();
 
   if (loading) {
     return (
@@ -283,6 +284,23 @@ const Dashboard = () => {
                     <div 
                       className="h-full bg-destructive rounded-full transition-all duration-500"
                       style={{ width: `${getPeakStressPercentage()}%` }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-muted-foreground">
+                      Peak Stress Level
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      {peakStress}%
+                    </span>
+                  </div>
+
+                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-destructive rounded-full transition-all"
+                      style={{ width: `${peakStress}%` }}
                     />
                   </div>
                 </div>

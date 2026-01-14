@@ -7,10 +7,14 @@ from authorization.oauth2 import get_current_user
 from schema import (
     StressPredictionRequest,
     StressPredictionResponse,
-    StressPredictionDayOutput
+    StressPredictionDayOutput,
+    PrioritiesRequest,
+    PrioritiesResponse,
+    PriorityTaskOutput,
 )
 
 import google.generativeai as genai
+from datetime import date
 
 GEMINI_KEY = os.getenv("GEMINI_KEY")
 if not GEMINI_KEY:
@@ -88,18 +92,44 @@ Workload data:
         # Create a mapping of day to workload for validation
         workload_by_day = {d.day: d for d in request.weekly_load}
         
-        daily_stress = [
-            StressPredictionDayOutput(
-                day=d["day"],
-                # If there are no deadlines or hours, stress must be 0
-                stressLevel=0 if (
-                    workload_by_day.get(d["day"]) and 
-                    workload_by_day[d["day"]].deadlines == 0 and 
-                    workload_by_day[d["day"]].hours == 0
-                ) else max(0, min(int(d["stressLevel"]), 100)),
-            )
-            for d in data["daily_stress"]
-        ]
+        # First pass: get raw stress levels
+        raw_stress_levels = []
+        for d in data["daily_stress"]:
+            # If there are no deadlines or hours, stress must be 0
+            if (workload_by_day.get(d["day"]) and 
+                workload_by_day[d["day"]].deadlines == 0 and 
+                workload_by_day[d["day"]].hours == 0):
+                stress_level = 0
+            else:
+                stress_level = max(0, min(int(d["stressLevel"]), 100))
+            
+            raw_stress_levels.append({
+                "day": d["day"],
+                "stressLevel": stress_level
+            })
+        
+        # Calculate total stress to compute percentages
+        total_stress = sum(d["stressLevel"] for d in raw_stress_levels)
+        
+        # Second pass: convert to percentages (distribution)
+        if total_stress > 0:
+            daily_stress = [
+                StressPredictionDayOutput(
+                    day=d["day"],
+                    # Convert to percentage of total weekly stress
+                    stressLevel=round((d["stressLevel"] / total_stress) * 100)
+                )
+                for d in raw_stress_levels
+            ]
+        else:
+            # If no stress at all, distribute evenly (or all 0s)
+            daily_stress = [
+                StressPredictionDayOutput(
+                    day=d["day"],
+                    stressLevel=0
+                )
+                for d in raw_stress_levels
+            ]
 
         weekly_stress_score = max(
             0, min(int(data["weekly_stress_score"]), 100)
@@ -129,3 +159,98 @@ Workload data:
         peak_stress_day=peak_stress_day,
         explanation=explanation,
     )
+
+@router.post("/priorities", response_model=PrioritiesResponse)
+def generate_priorities(request: PrioritiesRequest, current_user: models.User = Depends(get_current_user)):
+    today = date.today()
+
+    # ----------------------------
+    # Step 1: Deterministic scoring
+    # ----------------------------
+    scored_tasks = []
+
+    for task in request.tasks:
+        days_until_due = max((task.due_date - today).days, 0)
+
+        urgency_score = max(0, 30 - days_until_due)  # closer deadline → higher score
+        effort_score = min(task.estimated_effort * 2, 20)
+
+        importance_map = {
+            "low": 5,
+            "medium": 10,
+            "high": 20,
+        }
+        importance_score = importance_map.get(
+            task.importance_level.lower(), 10
+        )
+
+        total_score = urgency_score + effort_score + importance_score
+
+        scored_tasks.append({
+            "task": task,
+            "score": total_score,
+        })
+
+    scored_tasks.sort(key=lambda x: x["score"], reverse=True)
+
+    # ----------------------------
+    # Step 2: Ask Gemini for reasons
+    # ----------------------------
+    prompt_payload = [
+        {
+            "title": t["task"].title,
+            "due_date": str(t["task"].due_date),
+            "estimated_effort": t["task"].estimated_effort,
+            "importance": t["task"].importance_level,
+            "rank": idx + 1,
+        }
+        for idx, t in enumerate(scored_tasks)
+    ]
+
+    prompt = f"""
+            You are an assistant that explains task prioritization.
+
+            Given the ranked list of tasks below, explain briefly (1 sentence each)
+            why each task is placed at its rank.
+
+            Return STRICT JSON ONLY in this format:
+
+            {{
+            "priorities": [
+                {{ "rank": 1, "reason": "..." }}
+            ]
+            }}
+
+            Tasks:
+            {json.dumps(prompt_payload, indent=2)}
+            """
+
+    try:
+        response = model.generate_content(prompt)
+        raw_text = response.text
+        start = raw_text.find("{")
+        end = raw_text.rfind("}") + 1
+        data = json.loads(raw_text[start:end])
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Gemini priorities explanation failed: {str(e)}"
+        )
+
+    # ----------------------------
+    # Step 3: Build response
+    # ----------------------------
+    priorities = []
+    for idx, item in enumerate(scored_tasks):
+        priorities.append(
+            PriorityTaskOutput(
+                id=item["task"].id,
+                title=item["task"].title,
+                rank=idx + 1,
+                reason=data["priorities"][idx]["reason"],
+                estimated_effort=item["task"].estimated_effort,
+                due_date=item["task"].due_date,
+            )
+        )
+
+    return PrioritiesResponse(priorities=priorities)

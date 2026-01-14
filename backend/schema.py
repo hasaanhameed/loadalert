@@ -92,3 +92,28 @@ class StressPredictionResponse(BaseModel):
     risk_level: str           # "low" | "medium" | "high"
     peak_stress_day: str
     explanation: str
+
+""" ---- AI PRIORITIES ---- """
+
+class PriorityTaskInput(BaseModel):
+    id: int
+    title: str
+    due_date: date
+    estimated_effort: int
+    importance_level: str
+
+
+class PrioritiesRequest(BaseModel):
+    tasks: list[PriorityTaskInput]
+
+class PriorityTaskOutput(BaseModel):
+    id: int
+    title: str
+    rank: int
+    reason: str
+    estimated_effort: int
+    due_date: date
+
+
+class PrioritiesResponse(BaseModel):
+    priorities: list[PriorityTaskOutput]
