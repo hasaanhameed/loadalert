@@ -114,6 +114,5 @@ class PriorityTaskOutput(BaseModel):
     estimated_effort: int
     due_date: date
 
-
 class PrioritiesResponse(BaseModel):
     priorities: list[PriorityTaskOutput]
