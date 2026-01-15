@@ -1,50 +1,167 @@
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { StressContributor } from "@/components/StressContributor";
 import { RiskBadge } from "@/components/RiskBadge";
-import { Activity, Info, TrendingDown, TrendingUp } from "lucide-react";
+import { Activity, TrendingDown, TrendingUp} from "lucide-react";
+import { getDashboardSummary, DashboardSummary } from "@/api/dashboard";
+import { fetchDeadlines, Deadline } from "@/api/deadlines";
+import {
+  getStressContributors,
+  getStressPrediction,
+  StressContributorOutput,
+  StressPredictionResponse,
+} from "@/api/stress";
+import { useToast } from "@/hooks/use-toast";
 
-const weeklyData = [
-  { day: "Mon", stressLevel: 35, deadlines: 2 },
-  { day: "Tue", stressLevel: 45, deadlines: 1 },
-  { day: "Wed", stressLevel: 72, deadlines: 3 },
-  { day: "Thu", stressLevel: 85, deadlines: 4 },
-  { day: "Fri", stressLevel: 60, deadlines: 2 },
-  { day: "Sat", stressLevel: 25, deadlines: 1 },
-  { day: "Sun", stressLevel: 15, deadlines: 0 },
-];
+import {
+  generateWeeklyLoadHash,
+  getCachedStressPrediction,
+  cacheStressPrediction,
+  generateStressContributorsHash,
+  getCachedStressContributors,
+  cacheStressContributors,
+} from "@/utils/stressCache";
 
-const stressContributors = [
-  {
-    title: "Statistics Midterm Preparation",
-    contribution: 35,
-    dueDate: "2026-01-14",
-  },
-  {
-    title: "CS 301 - Algorithm Analysis Essay",
-    contribution: 25,
-    dueDate: "2026-01-12",
-  },
-  {
-    title: "History Research Paper Draft",
-    contribution: 20,
-    dueDate: "2026-01-15",
-  },
-  {
-    title: "Physics Lab Report",
-    contribution: 12,
-    dueDate: "2026-01-10",
-  },
-  {
-    title: "Weekly Reading Response",
-    contribution: 8,
-    dueDate: "2026-01-11",
-  },
-];
-
-const maxContribution = Math.max(...stressContributors.map((c) => c.contribution));
 
 const Stress = () => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
+  const [stressPrediction, setStressPrediction] = useState<StressPredictionResponse | null>(null);
+  const [stressContributors, setStressContributors] = useState<StressContributorOutput[]>([]);
+  const [maxContribution, setMaxContribution] = useState(0);
+
+  useEffect(() => {
+    fetchStressData();
+  }, []);
+
+  const fetchStressData = async () => {
+    try {
+      setLoading(true);
+
+      // Check if token exists
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Please log in to view stress data",
+        });
+        return;
+      }
+
+      // Fetch dashboard summary (for weekly load)
+      const dashboard = await getDashboardSummary();
+      setDashboardData(dashboard);
+
+      // Fetch all deadlines (for contributors)
+      const deadlines: Deadline[] = await fetchDeadlines();
+
+      // Get stress prediction
+      const weeklyLoad = dashboard.weekly_load.map((day) => ({
+        day: day.day,
+        hours: day.hours,
+        deadlines: day.deadlines,
+      }));
+
+      const weeklyHash = generateWeeklyLoadHash(weeklyLoad);
+      const cachedPrediction = getCachedStressPrediction(weeklyHash);
+
+      if (cachedPrediction) {
+        setStressPrediction(cachedPrediction);
+      } else {
+        const prediction = await getStressPrediction(weeklyLoad);
+        setStressPrediction(prediction);
+        cacheStressPrediction(weeklyHash, prediction);
+      }
+
+
+      // Get stress contributors (only for upcoming deadlines)
+      if (deadlines.length > 0) {
+        const deadlineInputs = deadlines.map((d: Deadline) => ({
+          id: d.id,
+          title: d.title,
+          due_date: d.due_date,
+          estimated_effort: d.estimated_effort,
+          importance_level: d.importance_level,
+        }));
+
+        const sortedDeadlines = [...deadlineInputs].sort((a, b) => a.id - b.id);
+        const contributorsHash = generateStressContributorsHash(sortedDeadlines);
+
+        const cachedContributors = getCachedStressContributors(contributorsHash);
+
+        if (cachedContributors) {
+          setStressContributors(cachedContributors.contributors);
+          setMaxContribution(cachedContributors.max_contribution);
+        } else {
+          const contributorsData = await getStressContributors(sortedDeadlines);
+          setStressContributors(contributorsData.contributors);
+          setMaxContribution(contributorsData.max_contribution);
+          cacheStressContributors(contributorsHash, contributorsData);
+        }
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.response?.data?.detail || "Failed to load stress data",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Prepare weekly chart data - include all required properties
+  const weeklyChartData = dashboardData?.weekly_load.map((day) => {
+    const stressDay = stressPrediction?.daily_stress.find((s) => s.day === day.day);
+    return {
+      day: day.day,
+      hours: day.hours,
+      deadlines: day.deadlines,
+      stressLevel: stressDay?.stressLevel || 0,
+    };
+  }) || [];
+
+  // Find best recovery day (lowest stress)
+  const bestRecoveryDay = stressPrediction?.daily_stress.reduce((min, day) =>
+    day.stressLevel < min.stressLevel ? day : min
+  );
+
+  // Find peak stress info
+  const peakStressInfo = stressPrediction?.daily_stress.find(
+    (day) => day.day === stressPrediction?.peak_stress_day
+  );
+
+  // Safely cast risk_level to the expected type
+  const riskLevel = (stressPrediction?.risk_level as "low" | "medium" | "high") || "low";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            <div
+              className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-primary/40 rounded-full animate-spin"
+              style={{ animationDirection: "reverse", animationDuration: "1.5s" }}
+            />
+          </div>
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-1">
+              Loading Stress Overview
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Analyzing your workload and stress patterns...
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+
   return (
     <div className="min-h-screen pb-12">
       <Navbar />
@@ -66,7 +183,7 @@ const Stress = () => {
                 <span className="text-sm text-muted-foreground">Current Status</span>
                 <Activity className="h-5 w-5 text-primary" />
               </div>
-              <RiskBadge level="medium" size="lg" />
+              <RiskBadge level={riskLevel} size="lg" />
               <p className="text-sm text-muted-foreground mt-3">
                 Based on deadline proximity and workload
               </p>
@@ -77,9 +194,13 @@ const Stress = () => {
                 <span className="text-sm text-muted-foreground">Peak Stress Day</span>
                 <TrendingUp className="h-5 w-5 text-destructive" />
               </div>
-              <p className="text-2xl font-bold text-foreground">Thursday</p>
+              <p className="text-2xl font-bold text-foreground">
+                {stressPrediction?.peak_stress_day || "N/A"}
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
-                85% stress level predicted
+                {peakStressInfo
+                  ? `${peakStressInfo.stressLevel}% stress level predicted`
+                  : "No data available"}
               </p>
             </div>
 
@@ -88,9 +209,13 @@ const Stress = () => {
                 <span className="text-sm text-muted-foreground">Best Recovery Day</span>
                 <TrendingDown className="h-5 w-5 text-success" />
               </div>
-              <p className="text-2xl font-bold text-foreground">Sunday</p>
+              <p className="text-2xl font-bold text-foreground">
+                {bestRecoveryDay?.day || "N/A"}
+              </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Only 15% stress level
+                {bestRecoveryDay
+                  ? `Only ${bestRecoveryDay.stressLevel}% stress level`
+                  : "No data available"}
               </p>
             </div>
           </div>
@@ -99,7 +224,7 @@ const Stress = () => {
           <div className="grid lg:grid-cols-5 gap-6 mb-8">
             {/* Weekly Chart - Takes 3 columns */}
             <div className="lg:col-span-3">
-              <WeeklyChart data={weeklyData} />
+              <WeeklyChart data={weeklyChartData} />
             </div>
 
             {/* Contributors - Takes 2 columns */}
@@ -108,17 +233,24 @@ const Stress = () => {
                 Top Stress Contributors
               </h3>
               <div className="space-y-5">
-                {stressContributors.map((contributor) => (
-                  <StressContributor
-                    key={contributor.title}
-                    {...contributor}
-                    maxContribution={maxContribution}
-                  />
-                ))}
+                {stressContributors.length > 0 ? (
+                  stressContributors.slice(0, 5).map((contributor) => (
+                    <StressContributor
+                      key={contributor.id}
+                      title={contributor.title}
+                      contribution={contributor.contribution}
+                      dueDate={contributor.due_date}
+                      maxContribution={maxContribution}
+                    />
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No upcoming deadlines
+                  </p>
+                )}
               </div>
             </div>
           </div>
-
         </div>
       </main>
     </div>

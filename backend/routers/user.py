@@ -49,3 +49,37 @@ def update_current_user(
         "email": current_user.email
     }
 
+@router.put("/change-password", status_code=status.HTTP_200_OK)
+def change_password(
+    request: schema.ChangePasswordRequest,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if not Hash.verify(
+        plain_password=request.current_password,
+        hashed_password=current_user.password
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Current password is incorrect"
+        )
+
+    # 2. Prevent reusing the same password (optional but good practice)
+    if Hash.verify(
+        plain_password=request.new_password,
+        hashed_password=current_user.password
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be different from the current password"
+        )
+
+    # 3. Hash and store new password
+    current_user.password = Hash.bcrypt(request.new_password)
+
+    db.commit()
+
+    return {
+        "message": "Password updated successfully"
+    }
+

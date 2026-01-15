@@ -21,6 +21,11 @@ class UserUpdate(BaseModel):
     name: str
     email: str
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 """ ---- AUTHENTICATION ---- """
 
 class LoginResponse(BaseModel):
@@ -116,3 +121,25 @@ class PriorityTaskOutput(BaseModel):
 
 class PrioritiesResponse(BaseModel):
     priorities: list[PriorityTaskOutput]
+
+""" ---- AI STRESS CONTRIBUTORS ---- """
+
+class StressContributorInput(BaseModel):
+    id: int
+    title: str
+    due_date: date
+    estimated_effort: int
+    importance_level: str
+
+class StressContributorsRequest(BaseModel):
+    deadlines: list[StressContributorInput]
+
+class StressContributorOutput(BaseModel):
+    id: int
+    title: str
+    contribution: int  # percentage 0-100
+    due_date: date
+
+class StressContributorsResponse(BaseModel):
+    contributors: list[StressContributorOutput]
+    max_contribution: int

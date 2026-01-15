@@ -9,6 +9,15 @@ const getAuthHeaders = () => {
   };
 };
 
+export interface Deadline {
+  id: number;
+  title: string;
+  due_date: string;
+  estimated_effort: number;
+  importance_level: string;
+  user_id: number;
+}
+
 export const fetchDeadlines = async () => {
   const res = await axios.get(`${API_URL}/deadlines/`, {
     headers: getAuthHeaders(),
@@ -42,7 +51,6 @@ export const updateDeadline = async (
   });
   return res.data;
 };
-
 
 export const deleteDeadline = async (id: number) => {
   await axios.delete(`${API_URL}/deadlines/${id}`, {

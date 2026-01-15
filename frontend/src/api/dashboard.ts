@@ -2,6 +2,13 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("access_token");
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 export interface WeeklyLoadDay {
   day: string;
   date: string;
@@ -15,13 +22,11 @@ export interface DashboardSummary {
   weekly_load: WeeklyLoadDay[];
 }
 
-export const getDashboardSummary = async (token: string) => {
+export const getDashboardSummary = async () => {
   const response = await axios.get<DashboardSummary>(
     `${API_URL}/dashboard/summary`,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getAuthHeaders(),
     }
   );
 
