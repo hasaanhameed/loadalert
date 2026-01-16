@@ -13,15 +13,14 @@ from schema import (
     PriorityTaskOutput,
 )
 
-import google.generativeai as genai
+from groq import Groq
 from datetime import date
 
-GEMINI_KEY = os.getenv("GEMINI_KEY")
-if not GEMINI_KEY:
-    raise RuntimeError("GEMINI_KEY not found in environment variables")
+GROQ_KEY = os.getenv("GROQ_KEY")
+if not GROQ_KEY:
+    raise RuntimeError("GROQ_KEY not found in environment variables")
 
-genai.configure(api_key=GEMINI_KEY)
-model = genai.GenerativeModel("gemini-2.5-flash")
+client = Groq(api_key=GROQ_KEY)
 router = APIRouter(prefix="/ai", tags=["AI"])
 
 
@@ -222,8 +221,19 @@ def predict_stress(request: StressPredictionRequest, current_user: models.User =
     explanation = "Your workload is distributed across the week."  # Default fallback
     
     try:
-        response = model.generate_content(prompt)
-        raw_text = response.text.strip()
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama-3.3-70b-versatile",  # You can also use "mixtral-8x7b-32768" or other models
+            temperature=0.7,
+            max_tokens=500,
+        )
+        
+        raw_text = chat_completion.choices[0].message.content.strip()
 
         # Strip markdown code blocks if present
         if raw_text.startswith("```"):
@@ -290,7 +300,7 @@ def generate_priorities(request: PrioritiesRequest, current_user: models.User = 
     scored_tasks.sort(key=lambda x: x["score"], reverse=True)
 
     # ----------------------------
-    # Step 2: Ask Gemini for reasons
+    # Step 2: Ask Groq for reasons
     # ----------------------------
     prompt_payload = [
         {
@@ -322,15 +332,26 @@ def generate_priorities(request: PrioritiesRequest, current_user: models.User = 
         """
 
     try:
-        response = model.generate_content(prompt)
-        raw_text = response.text
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            temperature=0.7,
+            max_tokens=1000,
+        )
+        
+        raw_text = chat_completion.choices[0].message.content
         start = raw_text.find("{")
         end = raw_text.rfind("}") + 1
         data = json.loads(raw_text[start:end])
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Gemini priorities explanation failed: {str(e)}"
+            detail=f"Groq priorities explanation failed: {str(e)}"
         )
 
     # ----------------------------

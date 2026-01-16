@@ -10,8 +10,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Single place to define the storage key for the access token
+// Single place to define the storage keys
 const ACCESS_TOKEN_KEY = "access_token";
+const USER_DATA_KEY = "user_data";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
@@ -32,8 +33,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = () => {
+    // Clear both token and user data
     localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(USER_DATA_KEY);
     setToken(null);
+    // Optionally redirect to home page
+    window.location.href = "/";
   };
 
   return (

@@ -16,6 +16,7 @@ const Profile = () => {
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   // Privacy & Security
   const [showSecurity, setShowSecurity] = useState(false);
@@ -24,6 +25,39 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+
+  // Email validation
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Password validation
+  const validatePassword = (password: string): boolean => {
+    return password.length >= 8 && /\d/.test(password);
+  };
+
+  const handleProfileUpdate = async () => {
+    setEmailError("");
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address (e.g., xyz@abc.com)");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const updatedUser = await updateUser({ name, email });
+      setUser(updatedUser);
+    } catch (err: any) {
+      alert(
+        err.response?.data?.detail || "Failed to update profile"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePasswordChange = async () => {
     setPasswordError("");
@@ -39,8 +73,9 @@ const Profile = () => {
       return;
     }
 
-    if (newPassword.length < 8) {
-      setPasswordError("Password must be at least 8 characters long");
+    // Validate new password
+    if (!validatePassword(newPassword)) {
+      setPasswordError("Password must be at least 8 characters and contain at least one number");
       return;
     }
 
@@ -63,7 +98,7 @@ const Profile = () => {
         err?.response?.data?.message ||
         err?.message ||
         "Failed to update password";
-    
+
       setPasswordError(message);
     } finally {
       setPasswordLoading(false);
@@ -110,25 +145,22 @@ const Profile = () => {
                 <Input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    // Clear error when user starts typing
+                    if (emailError) {
+                      setEmailError("");
+                    }
+                  }}
+                  className={emailError ? "border-destructive" : ""}
                 />
+                {emailError && (
+                  <p className="text-sm text-destructive">{emailError}</p>
+                )}
               </div>
 
               <Button
-                onClick={async () => {
-                  try {
-                    setLoading(true);
-                    const updatedUser = await updateUser({ name, email });
-                    setUser(updatedUser);
-                  } catch (err: any) {
-                    alert(
-                      err.response?.data?.detail ||
-                        "Failed to update profile"
-                    );
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onClick={handleProfileUpdate}
                 disabled={loading}
               >
                 {loading ? "Saving..." : "Save Changes"}
@@ -170,9 +202,12 @@ const Profile = () => {
                       <Input
                         type="password"
                         value={currentPassword}
-                        onChange={(e) =>
-                          setCurrentPassword(e.target.value)
-                        }
+                        onChange={(e) => {
+                          setCurrentPassword(e.target.value);
+                          if (passwordError) {
+                            setPasswordError("");
+                          }
+                        }}
                       />
                     </div>
 
@@ -181,10 +216,16 @@ const Profile = () => {
                       <Input
                         type="password"
                         value={newPassword}
-                        onChange={(e) =>
-                          setNewPassword(e.target.value)
-                        }
+                        onChange={(e) => {
+                          setNewPassword(e.target.value);
+                          if (passwordError) {
+                            setPasswordError("");
+                          }
+                        }}
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Must be at least 8 characters and contain at least one number
+                      </p>
                     </div>
 
                     <div>
@@ -192,9 +233,12 @@ const Profile = () => {
                       <Input
                         type="password"
                         value={confirmPassword}
-                        onChange={(e) =>
-                          setConfirmPassword(e.target.value)
-                        }
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          if (passwordError) {
+                            setPasswordError("");
+                          }
+                        }}
                       />
                     </div>
 

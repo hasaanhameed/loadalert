@@ -2,7 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { StatsCard } from "@/components/StatsCard";
 import { RiskBadge } from "@/components/RiskBadge";
 import { WeeklyChart } from "@/components/WeeklyChart";
-import { Activity, Calendar, AlertTriangle, TrendingUp, Clock } from "lucide-react";
+import { Activity, Calendar, AlertTriangle, TrendingUp, Clock, Sun, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDashboardSummary, DashboardSummary } from "@/api/dashboard";
 import { getStressPrediction, StressPredictionResponse } from "@/api/ai";
@@ -24,8 +24,8 @@ const Dashboard = () => {
       try {
         if (!token) return;
         
-        // Fetch dashboard summary
-        const data = await getDashboardSummary(token);
+        // Fetch dashboard summary - FIXED: removed token parameter
+        const data = await getDashboardSummary();
         setSummary(data);
 
         // Fetch AI stress prediction if there's data
@@ -60,6 +60,31 @@ const Dashboard = () => {
     fetchData();
   }, [token]);
 
+  // Calculate Free Days (days with no deadlines and minimal hours)
+  const calculateFreeDays = () => {
+    if (!summary?.weekly_load) return 0;
+    return summary.weekly_load.filter(day => day.deadlines === 0 && day.hours === 0).length;
+  };
+
+  // Calculate Urgency Index (percentage based on upcoming deadlines in next 3 days)
+  // Since we don't have individual task data here, we'll use a proxy:
+  // Higher percentage of week's deadlines in early days = higher urgency
+  const calculateUrgencyIndex = () => {
+    if (!summary?.weekly_load || summary.upcoming_deadlines === 0) return 0;
+    
+    // Calculate what percentage of deadlines are in the first 3 days
+    const firstThreeDays = summary.weekly_load.slice(0, 3);
+    const earlyDeadlines = firstThreeDays.reduce((sum, day) => sum + day.deadlines, 0);
+    
+    // Calculate urgency as percentage
+    const urgencyPercentage = Math.round((earlyDeadlines / summary.upcoming_deadlines) * 100);
+    
+    return Math.min(urgencyPercentage, 100);
+  };
+
+  const freeDays = calculateFreeDays();
+  const urgencyIndex = calculateUrgencyIndex();
+
   // Get risk color for styling
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -72,6 +97,13 @@ const Dashboard = () => {
       default:
         return "text-muted-foreground";
     }
+  };
+
+  // Get urgency color based on index
+  const getUrgencyColor = (index: number) => {
+    if (index >= 70) return "bg-destructive";
+    if (index >= 40) return "bg-warning";
+    return "bg-green-500";
   };
 
   // Get peak stress day percentage
@@ -280,13 +312,8 @@ const Dashboard = () => {
                       {stressPrediction && !aiLoading ? stressPrediction.peak_stress_day : "—"}
                     </span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-destructive rounded-full transition-all duration-500"
-                      style={{ width: `${getPeakStressPercentage()}%` }}
-                    />
-                  </div>
                 </div>
+
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-muted-foreground">
@@ -296,11 +323,46 @@ const Dashboard = () => {
                       {peakStress}%
                     </span>
                   </div>
-
                   <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-destructive rounded-full transition-all"
                       style={{ width: `${peakStress}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Sun className="h-3.5 w-3.5" />
+                      Free Days
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      {freeDays} / 7
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full transition-all"
+                      style={{ width: `${(freeDays / 7) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Zap className="h-3.5 w-3.5" />
+                      Urgency Index (Next 3 Days)
+                    </span>
+                    <span className="text-sm font-medium text-foreground">
+                      {urgencyIndex}%
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${getUrgencyColor(urgencyIndex)}`}
+                      style={{ width: `${urgencyIndex}%` }}
                     />
                   </div>
                 </div>

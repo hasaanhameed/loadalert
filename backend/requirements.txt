@@ -7,4 +7,5 @@ psycopg2-binary
 bcrypt
 python-jose
 python-multipart
-google-generativeai
+groq
+redis
