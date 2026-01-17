@@ -8,8 +8,16 @@ from alembic import context
 from dotenv import load_dotenv
 load_dotenv()
 
-from models import Base
+# CRITICAL: Import your Base
+from database import Base
+
+# CRITICAL: Import ALL your models so they're registered with Base.metadata
+# If you have models in multiple files, import them all here
+import models  # This should import all model classes
+
 target_metadata = Base.metadata
+
+# ... rest of your code stays the same
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
