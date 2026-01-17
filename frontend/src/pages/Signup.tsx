@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signupUser } from "@/api/auth";
-import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Activity, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [errors, setErrors] = useState({
@@ -53,12 +54,16 @@ const Signup = () => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       await signupUser(name, email, password);
       setSignupSuccess(true);
     } catch (error) {
       console.error(error);
       alert(error instanceof Error ? error.message : "Signup failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,6 +135,7 @@ const Signup = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
                     className="h-12"
+                    disabled={isLoading}
                     required
                   />
                 </div>
@@ -149,6 +155,7 @@ const Signup = () => {
                     }}
                     placeholder="you@university.edu"
                     className={`h-12 ${errors.email ? "border-destructive" : ""}`}
+                    disabled={isLoading}
                     required
                   />
                   {errors.email && (
@@ -172,12 +179,14 @@ const Signup = () => {
                       }}
                       placeholder="Create a strong password"
                       className={`h-12 pr-12 ${errors.password ? "border-destructive" : ""}`}
+                      disabled={isLoading}
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      disabled={isLoading}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:opacity-50"
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5" />
@@ -194,8 +203,21 @@ const Signup = () => {
                   </p>
                 </div>
 
-                <Button type="submit" variant="glow" size="lg" className="w-full">
-                  Create Account
+                <Button 
+                  type="submit" 
+                  variant="glow" 
+                  size="lg" 
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait...
+                    </>
+                  ) : (
+                    "Create Account"
+                  )}
                 </Button>
               </form>
 

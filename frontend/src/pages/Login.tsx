@@ -7,19 +7,20 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Activity, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useUser();
   const { login } = useAuth();
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
   
     try {
       const data = await loginUser(email, password);
@@ -34,6 +35,8 @@ const Login = () => {
     } catch (error) {
       console.error(error);
       alert("Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };  
   
@@ -73,6 +76,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@university.edu"
                 className="bg-muted/50 border-border/50 focus:border-primary h-12"
+                disabled={isLoading}
                 required
               />
             </div>
@@ -89,19 +93,35 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className="bg-muted/50 border-border/50 focus:border-primary h-12 pr-12"
+                  disabled={isLoading}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isLoading}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
-            <Button type="submit" variant="glow" size="lg" className="w-full">
-              Sign In
+            
+            <Button 
+              type="submit" 
+              variant="glow" 
+              size="lg" 
+              className="w-full" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait...
+                </>
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 
