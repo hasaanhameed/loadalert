@@ -53,7 +53,7 @@ const Index = () => {
 
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               LoadAlert analyzes your upcoming deadlines and estimated workload to predict 
-              high-stress periods — so you can plan smarter and avoid last-minute panic.
+              high-stress periods so you can plan smarter and avoid last-minute panic.
             </p>
 
           </div>
