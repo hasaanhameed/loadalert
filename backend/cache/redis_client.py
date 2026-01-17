@@ -8,11 +8,13 @@ load_dotenv()
 
 class RedisClient:
     def __init__(self):
-        self.redis_client = redis.Redis(
-            host=os.getenv("REDIS_HOST", "redis"),
-            port=int(os.getenv("REDIS_PORT", 6379)),
-            db=0,
-            decode_responses=True  # Automatically decode bytes to strings
+        redis_url = os.getenv("REDIS_URL")
+        if not redis_url:
+            raise RuntimeError("REDIS_URL is not set")
+
+        self.redis_client = redis.Redis.from_url(
+            redis_url,
+            decode_responses=True
         )
     
     def get(self, key: str) -> Optional[str]:
