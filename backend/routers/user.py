@@ -11,12 +11,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 # Create a new user/Sign UP
 @router.post("/")
 def create_user(request: schema.User, db : Session = Depends(database.get_db)):
-    # TEMPORARY DEBUG: Store password without hashing
-    new_user = models.User(name=request.name, email=request.email, password=request.password)
-    
-    # ORIGINAL CODE (RESTORE AFTER DEBUGGING):
-    # new_user = models.User(name=request.name, email=request.email, password=Hash.bcrypt(request.password))
-    
+    new_user = models.User(name=request.name, email=request.email, password=Hash.bcrypt(request.password))
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -91,46 +86,28 @@ def change_password(
             detail="User not found"
         )
     
-    # TEMPORARY DEBUG: Direct password comparison without hashing
     # 1. Verify current password
-    if request.current_password != db_user.password:
+    if not Hash.verify(
+        plain_password=request.current_password,
+        hashed_password=db_user.password
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Current password is incorrect"
         )
-    
-    # ORIGINAL CODE (RESTORE AFTER DEBUGGING):
-    # if not Hash.verify(
-    #     plain_password=request.current_password,
-    #     hashed_password=db_user.password
-    # ):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Current password is incorrect"
-    #     )
 
     # 2. Prevent reusing the same password
-    if request.new_password == db_user.password:
+    if Hash.verify(
+        plain_password=request.new_password,
+        hashed_password=db_user.password
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="New password must be different from the current password"
         )
-    
-    # ORIGINAL CODE (RESTORE AFTER DEBUGGING):
-    # if Hash.verify(
-    #     plain_password=request.new_password,
-    #     hashed_password=db_user.password
-    # ):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail="New password must be different from the current password"
-    #     )
 
-    # 3. Store new password without hashing
-    db_user.password = request.new_password
-    
-    # ORIGINAL CODE (RESTORE AFTER DEBUGGING):
-    # db_user.password = Hash.bcrypt(request.new_password)
+    # 3. Hash and store new password
+    db_user.password = Hash.bcrypt(request.new_password)
 
     db.commit()
     
