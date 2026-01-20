@@ -22,22 +22,14 @@ def login(
             detail="Invalid credentials"
         )
 
-    # TEMPORARY DEBUG: Password comparison without hashing
-    if request.password != user.password:
+    if not hashing.Hash.verify(
+        plain_password=request.password,
+        hashed_password=user.password
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid credentials"
         )
-    
-    # ORIGINAL CODE (RESTORE AFTER DEBUGGING):
-    # if not hashing.Hash.verify(
-    #     plain_password=request.password,
-    #     hashed_password=user.password
-    # ):
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Invalid credentials"
-    #     )
 
     access_token = auth_token.create_access_token(
         data={"sub": user.email}
