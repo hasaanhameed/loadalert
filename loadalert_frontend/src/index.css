@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* The Core 4 Palette */
+    --background: 0 0% 98%;       /* Pure Snow (#FAF7F7) */
+    --foreground: 347 100% 5%;    /* Obsidian Blood (#1A0005) */
+
+    --card: 0 18% 93%;            /* Ash White (#F0E8E8) */
+    --card-foreground: 347 100% 5%;
+
+    --popover: 0 0% 98%;
+    --popover-foreground: 347 100% 5%;
+
+    --primary: 347 100% 9%;       /* Dark Claret (#2D0008) */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 18% 93%;       /* Ash White */
+    --secondary-foreground: 347 100% 9%;
+
+    --muted: 0 18% 90%;
+    --muted-foreground: 347 20% 30%;
+
+    --accent: 347 100% 5%;        /* Obsidian Blood */
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 347 10% 85%;
+    --input: 347 10% 85%;
+    --ring: 347 100% 9%;
+
+    --radius: 0.5rem;             /* Professional border radius restored */
+
+    /* Professional Light Gradients */
+    --gradient-hero: linear-gradient(180deg, #FAF7F7 0%, #F0E8E8 100%);
+    --gradient-card: linear-gradient(135deg, #FAF7F7 0%, #F0E8E8 100%);
+    --gradient-accent: linear-gradient(135deg, #2D0008 0%, #1A0005 100%);
+    
+    /* Shadows - Subtle and refined */
+    --shadow-glow: 0 0 40px rgba(45, 0, 8, 0.05);
+    --shadow-card: 0 4px 20px rgba(26, 0, 5, 0.04);
+
+    /* Clean 4-Color Reference */
+    --obsidian-blood: #1A0005;
+    --dark-claret: #2D0008;
+    --ash-white: #F0E8E8;
+    --pure-snow: #FAF7F7;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--gradient-hero);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/40 border border-border/60 rounded-lg;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-card);
+    background-image: var(--gradient-card);
+  }
+
+  .glow-effect {
+    @apply relative transition-all duration-300;
+  }
+
+  .glow-effect::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-accent);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    filter: blur(12px);
+  }
+
+  .glow-effect:hover::before {
+    opacity: 0.25;
+  }
+
+  .text-gradient {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .risk-low {
+    @apply bg-success/20 text-success border-success/30;
+  }
+
+  .risk-medium {
+    @apply bg-warning/20 text-warning border-warning/30;
+  }
+
+  .risk-high {
+    @apply bg-destructive/20 text-destructive border-destructive/30;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+}
