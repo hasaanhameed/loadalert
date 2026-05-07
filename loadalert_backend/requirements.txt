@@ -5,7 +5,7 @@ sqlalchemy
 alembic 
 python-dotenv 
 psycopg2-binary
-bcrypt
+bcrypt==4.0.1
 python-jose
 python-multipart
 groq
