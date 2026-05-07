@@ -90,8 +90,9 @@ const Signup = () => {
             </div>
 
             <Button
+              variant="default"
               size="lg"
-              className="w-full bg-dark-claret hover:bg-obsidian-blood text-pure-snow rounded-lg font-black uppercase tracking-widest h-16 shadow-xl shadow-dark-claret/20"
+              className="w-full rounded-lg font-black uppercase tracking-widest h-16"
               onClick={() => navigate("/login")}
             >
               Sign In to Dashboard
@@ -199,8 +200,9 @@ const Signup = () => {
 
                 <Button 
                   type="submit" 
+                  variant="default"
                   size="lg" 
-                  className="w-full bg-dark-claret hover:bg-obsidian-blood text-pure-snow rounded-lg font-black uppercase tracking-[0.3em] h-16 shadow-xl shadow-dark-claret/10 mt-4 transition-all duration-300"
+                  className="w-full rounded-lg font-black uppercase tracking-[0.3em] h-16 mt-4"
                   disabled={isLoading}
                 >
                   {isLoading ? (

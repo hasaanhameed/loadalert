@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25",
+        default: "bg-ash-white text-obsidian-blood hover:bg-pure-snow shadow-lg shadow-black/5 border border-obsidian-blood/5",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-border bg-transparent hover:bg-secondary hover:text-secondary-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-secondary hover:text-secondary-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "border border-muted-foreground/30 bg-transparent text-foreground hover:border-primary hover:text-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300",
-        heroFilled: "bg-muted/80 text-foreground border border-muted-foreground/20 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300",
-        glow: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/40 hover:shadow-primary/60 transition-shadow",
+        hero: "border border-ash-white/30 bg-transparent text-ash-white hover:border-pure-snow hover:bg-pure-snow hover:text-obsidian-blood transition-all duration-300",
+        heroFilled: "bg-ash-white text-obsidian-blood border border-obsidian-blood/5 hover:bg-pure-snow transition-all duration-300",
+        glow: "bg-ash-white text-obsidian-blood hover:bg-pure-snow shadow-lg shadow-ash-white/20 transition-shadow",
       },
       size: {
         default: "h-10 px-4 py-2",

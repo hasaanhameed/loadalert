@@ -14,18 +14,12 @@ export default {
     },
     extend: {
       colors: {
-        // New Professional Color Palette
-        abyss: {
-          obsidian: "#1A0005",
-          claret: "#2D0008",
-        },
-        blood: {
-          dried: "#4A0010",
-          crimson: "#6B0017",
-          DEFAULT: "#8B0000",
-        },
-        ash: "#F0E8E8",
-        snow: "#FAF7F7",
+        /* The Core 4 Palette */
+        "obsidian-blood": "#1A0005",
+        "dark-claret": "#2D0008",
+        "ash-white": "#F0E8E8",
+        "pure-snow": "#FAF7F7",
+        "fired-cream": "#E2B0A0",
         
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -33,12 +27,12 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#2D0008", /* Dark Claret */
+          foreground: "#FAF7F7",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#F0E8E8", /* Ash White */
+          foreground: "#1A0005",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -57,16 +51,16 @@ export default {
           foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#1A0005", /* Obsidian Blood */
+          foreground: "#FAF7F7",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#F0E8E8",
+          foreground: "#1A0005",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

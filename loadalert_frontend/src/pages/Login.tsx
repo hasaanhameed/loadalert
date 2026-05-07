@@ -109,7 +109,7 @@ const Login = () => {
             
             <Button 
               type="submit" 
-              variant="glow" 
+              variant="default" 
               size="lg" 
               className="w-full" 
               disabled={isLoading}
