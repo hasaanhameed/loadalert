@@ -11,8 +11,6 @@ class UserService:
             raise HTTPException(status_code=404, detail="User not found")
         
         db_user.name = request.name
-        if request.section:
-            db_user.section = request.section
 
         db.commit()
         db.refresh(db_user)

@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Trash2, GraduationCap } from "lucide-react";
+import { Calendar, AlertTriangle, Trash2, GraduationCap, Pin, PinOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Deadline } from "@/lib/types";
@@ -7,9 +7,10 @@ interface DeadlineCardProps {
   deadline: Deadline;
   onEdit?: (deadline: Deadline) => void;
   onDelete?: (id: string) => void;
+  onPin?: (id: string, isPinned: boolean) => void;
 }
 
-export const DeadlineCard = ({ deadline, onDelete }: DeadlineCardProps) => {
+export const DeadlineCard = ({ deadline, onDelete, onPin }: DeadlineCardProps) => {
   const daysUntilDue = Math.ceil(
     (new Date(deadline.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
@@ -17,7 +18,8 @@ export const DeadlineCard = ({ deadline, onDelete }: DeadlineCardProps) => {
   return (
     <div
       className={cn(
-        "bg-pure-snow border border-obsidian-blood/5 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group rounded-xl"
+        "bg-pure-snow border border-obsidian-blood/5 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group rounded-xl",
+        deadline.is_pinned && "border-l-4 border-l-fired-cream"
       )}
     >
       <div className="flex items-start justify-between gap-4">
@@ -27,6 +29,11 @@ export const DeadlineCard = ({ deadline, onDelete }: DeadlineCardProps) => {
                <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-obsidian-blood/5 text-obsidian-blood/60 rounded flex items-center gap-1.5">
                  <GraduationCap className="h-3 w-3" /> {deadline.courseName || deadline.course_name || "General"}
                </span>
+               {deadline.is_pinned && (
+                 <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-fired-cream/20 text-obsidian-blood/60 rounded flex items-center gap-1.5">
+                   <Pin className="h-3 w-3 fill-current" /> My List
+                 </span>
+               )}
              </div>
             <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic">{deadline.title}</h3>
           </div>
@@ -50,6 +57,21 @@ export const DeadlineCard = ({ deadline, onDelete }: DeadlineCardProps) => {
         </div>
 
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {deadline.lms_event_id && onPin && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onPin(String(deadline.id), !deadline.is_pinned)}
+              className={cn(
+                "h-10 w-10 transition-colors",
+                deadline.is_pinned 
+                  ? "text-fired-cream hover:text-fired-cream/80 bg-fired-cream/5" 
+                  : "text-obsidian-blood/30 hover:text-obsidian-blood hover:bg-obsidian-blood/5"
+              )}
+            >
+              {deadline.is_pinned ? <PinOff className="h-5 w-5" /> : <Pin className="h-5 w-5" />}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

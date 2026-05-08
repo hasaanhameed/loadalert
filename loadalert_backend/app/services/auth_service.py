@@ -36,7 +36,6 @@ class AuthService:
                     name=full_name,
                     lms_username=request.email,
                     lms_password=encrypt_password(request.password),
-                    section=request.section,
                 )
                 db.add(user)
                 db.commit()
@@ -47,9 +46,8 @@ class AuthService:
                 full_name = await lms.get_user_full_name()
                 if full_name and full_name != "NUST Student":
                     user.name = full_name
-                # Update stored password/section in case they changed
+                # Update stored password in case it changed
                 user.lms_password = encrypt_password(request.password)
-                user.section = request.section
                 db.commit()
         finally:
             await lms.close()

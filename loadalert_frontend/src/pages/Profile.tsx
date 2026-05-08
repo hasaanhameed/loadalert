@@ -48,7 +48,7 @@ const Profile = () => {
 
     try {
       setLoading(true);
-      const updatedUser = await updateUser({ name, email });
+      const updatedUser = await updateUser({ name });
       setUser(updatedUser);
     } catch (err: any) {
       alert(

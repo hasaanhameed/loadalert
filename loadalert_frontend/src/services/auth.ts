@@ -4,11 +4,10 @@ import { AuthResponse } from "@/lib/types";
 /**
  * LOGIN / CONNECT PORTAL
  */
-export const loginUser = async (email: string, password: string, section: string): Promise<AuthResponse> => {
+export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
   const res = await api.post<AuthResponse>("/login", {
     email,
-    password,
-    section
+    password
   });
 
   return res.data;

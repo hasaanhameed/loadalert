@@ -50,3 +50,18 @@ class DeadlineService:
         db.commit()
         invalidate_user_dashboard_cache(current_user.id)
         return None
+    @staticmethod
+    def toggle_deadline_pin(db: Session, current_user, deadline_id: int, is_pinned: bool):
+        deadline = db.query(Deadline).filter(
+            Deadline.id == deadline_id,
+            Deadline.user_id == current_user.id
+        ).first()
+
+        if not deadline:
+            raise HTTPException(status_code=404, detail="Deadline not found")
+
+        deadline.is_pinned = is_pinned
+        db.commit()
+        db.refresh(deadline)
+        invalidate_user_dashboard_cache(current_user.id)
+        return deadline

@@ -11,7 +11,6 @@ import { ArrowLeft, Eye, EyeOff, Loader2, Fingerprint, Lock, School } from "luci
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [section, setSection] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +23,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const data = await loginUser(email, password, section || "BSCS-13D");
+      const data = await loginUser(email, password);
       login(data.access_token);
       setUser(data.user);
       navigate("/deadlines");
@@ -102,22 +101,6 @@ const Login = () => {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="section" className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60 ml-1 flex items-center gap-2">
-                <School className="h-3 w-3" /> Academic Section
-              </Label>
-              <Input
-                id="section"
-                type="text"
-                value={section}
-                onChange={(e) => setSection(e.target.value.toUpperCase())}
-                placeholder="e.g. BSCS-13D"
-                className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood h-14 rounded-xl font-medium"
-                disabled={isLoading}
-                required
-              />
             </div>
 
             <div className="pt-4">

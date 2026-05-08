@@ -4,12 +4,11 @@ import { Navbar } from "@/components/Navbar";
 import { DeadlineCard } from "@/components/DeadlineCard";
 import { Deadline } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Calendar, Filter, GraduationCap, Loader2, Plus } from "lucide-react";
+import { RefreshCcw, Filter, GraduationCap, Loader2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
 
-const Deadlines = () => {
+const UniversalPulse = () => {
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -20,10 +19,10 @@ const Deadlines = () => {
       setLoading(true);
       const data = await fetchDeadlines();
       
-      // Filter: Manual (lms_event_id is null) OR Pinned (is_pinned is true)
-      const myDeadlines = data.filter(d => d.lms_event_id === null || d.is_pinned === true);
+      // Filter for only LMS deadlines
+      const lmsOnly = data.filter(d => d.lms_event_id !== null);
       
-      const formatted = myDeadlines.map((d: any) => ({
+      const formatted = lmsOnly.map((d: any) => ({
         id: String(d.id),
         title: d.title,
         dueDate: d.due_date,
@@ -34,7 +33,7 @@ const Deadlines = () => {
       setDeadlines(formatted);
     } catch (err) {
       console.error("Failed to fetch deadlines", err);
-      toast.error("Failed to load your deadlines");
+      toast.error("Failed to load global feed");
     } finally {
       setLoading(false);
     }
@@ -48,11 +47,11 @@ const Deadlines = () => {
     try {
       setSyncing(true);
       await syncDeadlines();
-      toast.success("Deadlines updated");
+      toast.success("Universal Pulse synchronized");
       await loadDeadlines();
     } catch (err) {
       console.error("Sync failed", err);
-      toast.error("Sync failed. Check LMS credentials.");
+      toast.error("Synchronization failed. Check LMS credentials.");
     } finally {
       setSyncing(false);
     }
@@ -62,7 +61,7 @@ const Deadlines = () => {
     try {
       await deleteDeadline(Number(id));
       setDeadlines((prev) => prev.filter((d) => d.id !== id));
-      toast.success("Deadline removed");
+      toast.success("Assignment dismissed from feed");
     } catch (err) {
       console.error("Failed to delete deadline", err);
       toast.error("Action failed");
@@ -72,15 +71,10 @@ const Deadlines = () => {
   const handlePin = async (id: string, isPinned: boolean) => {
     try {
       await togglePin(Number(id), isPinned);
-      if (!isPinned) {
-        // If unpinned, remove from this view if it's an LMS item
-        setDeadlines((prev) => prev.filter((d) => d.id !== id || d.lms_event_id === null));
-      } else {
-        setDeadlines((prev) => 
-          prev.map((d) => d.id === id ? { ...d, is_pinned: isPinned } : d)
-        );
-      }
-      toast.success(isPinned ? "Pinned to list" : "Removed from list");
+      setDeadlines((prev) => 
+        prev.map((d) => d.id === id ? { ...d, is_pinned: isPinned } : d)
+      );
+      toast.success(isPinned ? "Added to My Deadlines" : "Removed from My Deadlines");
     } catch (err) {
       console.error("Failed to toggle pin", err);
       toast.error("Action failed");
@@ -113,32 +107,35 @@ const Deadlines = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
             <div className="space-y-1">
-              <h1 className="text-4xl font-black text-obsidian-blood uppercase tracking-tight italic">My Deadlines</h1>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-fired-cream/10 rounded-lg">
+                  <Zap className="h-5 w-5 text-fired-cream fill-current" />
+                </div>
+                <h1 className="text-4xl font-black text-obsidian-blood uppercase tracking-tight italic">Universal Pulse</h1>
+              </div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40">
-                {deadlines.length} Curated Items • Personal List
+                LMS Global Feed • All Sections • {deadlines.length} Active Items
               </p>
             </div>
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                asChild
-                className="h-14 px-8 rounded-xl border-obsidian-blood/10 text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] hover:bg-obsidian-blood/5 transition-all duration-300"
-              >
-                <Link to="/universal-pulse">
+            <Button
+              variant="default"
+              size="lg"
+              onClick={handleSync}
+              disabled={syncing}
+              className="h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
+            >
+              {syncing ? (
+                <>
+                  <RefreshCcw className="h-4 w-4 mr-3 animate-spin" />
+                  Syncing...
+                </>
+              ) : (
+                <>
                   <RefreshCcw className="h-4 w-4 mr-3" />
-                  Global Feed
-                </Link>
-              </Button>
-              <Button
-                variant="default"
-                size="lg"
-                className="h-14 px-8 rounded-xl bg-obsidian-blood text-pure-snow text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
-              >
-                <Plus className="h-4 w-4 mr-3" />
-                Add New
-              </Button>
-            </div>
+                  Sync Feed
+                </>
+              )}
+            </Button>
           </div>
 
           {/* Subject Filter */}
@@ -148,7 +145,7 @@ const Deadlines = () => {
                 <div className="p-2 bg-obsidian-blood/5 rounded-lg">
                   <Filter className="h-4 w-4 text-obsidian-blood/60" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60">Subject:</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60">Filter Feed:</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -160,7 +157,7 @@ const Deadlines = () => {
                       : "bg-obsidian-blood/5 text-obsidian-blood/40 hover:bg-obsidian-blood/10"
                   )}
                 >
-                  All Tasks
+                  Global Stream
                 </button>
                 {courses.map((course) => (
                   <button
@@ -194,13 +191,13 @@ const Deadlines = () => {
             ) : (
               <div className="bg-pure-snow border border-dashed border-obsidian-blood/10 rounded-2xl p-20 text-center">
                 <div className="w-16 h-16 bg-obsidian-blood/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Calendar className="h-8 w-8 text-obsidian-blood/20" />
+                  <GraduationCap className="h-8 w-8 text-obsidian-blood/20" />
                 </div>
                 <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic mb-3">
-                  No Personal Deadlines
+                  Pulse Stream Empty
                 </h3>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40 max-w-xs mx-auto leading-relaxed">
-                  Your personal list is empty. Add manual tasks or browse the <Link to="/universal-pulse" className="text-obsidian-blood underline">Global Feed</Link> to pin deadlines.
+                  Connect your portal or click sync to fetch the global feed of academic activity.
                 </p>
               </div>
             )}
@@ -211,4 +208,4 @@ const Deadlines = () => {
   );
 };
 
-export default Deadlines;
+export default UniversalPulse;

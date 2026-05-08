@@ -8,7 +8,8 @@ import { useUser } from "@/context/UserContext";
 const navLinks = [
   { name: "Home", path: "/", icon: Home },
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Deadlines", path: "/deadlines", icon: Calendar },
+  { name: "My Deadlines", path: "/deadlines", icon: Calendar },
+  { name: "Universal Pulse", path: "/universal-pulse", icon: Activity },
   { name: "Stress Overview", path: "/stress", icon: BarChart3 },
   { name: "Profile", path: "/profile", icon: User },
 ];
@@ -16,7 +17,8 @@ const navLinks = [
 const privateLinks = [
   { name: "Home", path: "/", icon: Home },
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Deadlines", path: "/deadlines", icon: Calendar },
+  { name: "My Deadlines", path: "/deadlines", icon: Calendar },
+  { name: "Universal Pulse", path: "/universal-pulse", icon: Activity },
   { name: "Stress Overview", path: "/stress", icon: BarChart3 },
   { name: "Profile", path: "/profile", icon: User },
 ];

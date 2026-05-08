@@ -9,6 +9,7 @@ class DeadlineBase(BaseModel):
     lms_event_id: Optional[int] = None
     estimated_effort: Optional[int] = None
     importance_level: Optional[str] = None
+    is_pinned: bool = False
 
 class DeadlineCreate(DeadlineBase):
     pass

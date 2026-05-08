@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Date
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, Boolean
 from sqlalchemy.orm import relationship
 from app.database.database import Base
 
@@ -10,6 +10,7 @@ class Deadline(Base):
     due_date = Column(Date, nullable=False)
     course_name = Column(String, nullable=True)
     lms_event_id = Column(Integer, unique=True, nullable=True)
+    is_pinned = Column(Boolean, default=False)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 

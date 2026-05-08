@@ -39,3 +39,13 @@ def delete_deadline(
     current_user: User = Depends(get_current_user),
 ):
     return DeadlineService.delete_deadline(db, current_user, deadline_id)
+
+@router.put("/{deadline_id}/pin", response_model=DeadlineResponse)
+def toggle_pin(
+    deadline_id: int,
+    is_pinned: bool,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Pins or unpins a deadline (adds to My Deadlines)."""
+    return DeadlineService.toggle_deadline_pin(db, current_user, deadline_id, is_pinned)

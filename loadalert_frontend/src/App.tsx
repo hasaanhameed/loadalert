@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Deadlines from "./pages/Deadlines";
+import UniversalPulse from "./pages/UniversalPulse";
 import Priorities from "./pages/Priorities";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Deadlines />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/universal-pulse"
+                element={
+                  <ProtectedRoute>
+                    <UniversalPulse />
                   </ProtectedRoute>
                 }
               />

@@ -26,3 +26,10 @@ export const syncDeadlines = async (): Promise<void> => {
 export const deleteDeadline = async (id: number): Promise<void> => {
   await api.delete(`/deadlines/${id}`);
 };
+
+export const togglePin = async (id: number, is_pinned: boolean): Promise<Deadline> => {
+  const res = await api.put<Deadline>(`/deadlines/${id}/pin`, null, {
+    params: { is_pinned }
+  });
+  return res.data;
+};
