@@ -52,9 +52,9 @@ const Index = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-6 pt-12">
-              <Button size="lg" className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 group" asChild>
+              <Button size="lg" className="h-14 px-10 text-xs font-black uppercase tracking-[0.2em] bg-fired-cream text-obsidian-blood border-0 shadow-lg hover:bg-fired-cream/80 hover:scale-105 active:scale-95 transition-all duration-300 group" asChild>
                 <Link to="/login" className="flex items-center gap-3">
-                  Connect Portal <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  Plug Into LMS <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
             </div>

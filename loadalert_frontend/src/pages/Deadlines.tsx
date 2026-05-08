@@ -71,7 +71,7 @@ const Deadlines = () => {
 
   if (loading && deadlines.length === 0) {
     return (
-      <div className="min-h-screen bg-fired-cream">
+      <div className="min-h-screen bg-pure-snow">
         <Navbar />
         <div className="flex items-center justify-center h-[80vh]">
           <Loader2 className="h-8 w-8 animate-spin text-obsidian-blood/20" />
@@ -81,7 +81,7 @@ const Deadlines = () => {
   }
 
   return (
-    <div className="min-h-screen bg-fired-cream pb-20">
+    <div className="min-h-screen bg-pure-snow pb-20">
       <Navbar />
 
       <main className="pt-28 px-6">
@@ -99,12 +99,12 @@ const Deadlines = () => {
               size="lg"
               onClick={handleSync}
               disabled={syncing}
-              className="h-16 px-8 rounded-xl bg-pure-snow text-obsidian-blood text-[10px] font-black uppercase italic tracking-[0.2em] shadow-xl hover:bg-pure-snow/90 hover:scale-[1.02] active:scale-[0.98] border border-obsidian-blood/5 transition-all duration-300"
+              className="h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
             >
               {syncing ? (
                 <>
                   <RefreshCcw className="h-4 w-4 mr-3 animate-spin" />
-                  Syncing Pulse...
+                  Syncing...
                 </>
               ) : (
                 <>
@@ -122,7 +122,7 @@ const Deadlines = () => {
                 <div className="p-2 bg-obsidian-blood/5 rounded-lg">
                   <Filter className="h-4 w-4 text-obsidian-blood/60" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60">Subjects:</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60">Deadlines by Course:</span>
               </div>
               <div className="flex gap-2">
                 <button

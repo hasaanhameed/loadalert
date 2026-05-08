@@ -98,17 +98,54 @@ class LMSSession:
             return None
 
     async def get_user_full_name(self) -> str:
-        """Scrapes the user's full name from the portal profile header."""
+        """
+        Gets the authenticated user's full name.
+
+        Strategy (most reliable first):
+        1. Moodle AJAX API — core_webservice_get_site_info returns `fullname`
+           directly; this works regardless of the Moodle theme in use.
+        2. HTML scraping with multiple selectors covering common Moodle themes
+           (NUST's theme does not use the standard `.usertext` span).
+        """
+        # ── Strategy 1: Moodle AJAX API ──────────────────────────────────────
+        try:
+            sesskey = await self.get_sesskey()
+            if sesskey:
+                params  = {"sesskey": sesskey, "info": "core_webservice_get_site_info"}
+                payload = [{"index": 0, "methodname": "core_webservice_get_site_info", "args": {}}]
+                resp = await self.client.post(self.AJAX_URL, params=params, json=payload)
+                data = resp.json()
+                fullname = data[0].get("data", {}).get("fullname", "")
+                if fullname:
+                    logger.info(f"Got full name from Moodle API: {fullname}")
+                    return fullname.strip()
+        except Exception as e:
+            logger.warning(f"Moodle API name fetch failed, falling back to HTML scrape: {e}")
+
+        # ── Strategy 2: HTML scraping ─────────────────────────────────────────
         try:
             response = await self.client.get(f"{self.BASE_URL}/my/")
             soup = BeautifulSoup(response.text, "html.parser")
-            user_menu = soup.find("span", {"class": "usertext"})
-            if user_menu:
-                return user_menu.text.strip()
-            header = soup.find("div", {"class": "usertext"})
-            return header.text.strip() if header else "NUST Student"
-        except Exception:
-            return "NUST Student"
+
+            # Try selectors in order of likelihood for NUST / generic Moodle themes
+            selectors = [
+                ("span",  {"class": "usertext"}),        # Boost / Clean theme
+                ("div",   {"class": "usertext"}),
+                ("span",  {"class": "username"}),
+                ("h1",    {}),                            # Profile page heading
+                ("div",   {"class": "page-header-headings"}),  # Some Moodle themes
+            ]
+            for tag, attrs in selectors:
+                el = soup.find(tag, attrs) if attrs else soup.find(tag)
+                if el and el.text.strip():
+                    name = el.text.strip()
+                    logger.info(f"Got full name from HTML ({tag}.{attrs}): {name}")
+                    return name
+
+        except Exception as e:
+            logger.warning(f"HTML name scrape failed: {e}")
+
+        return "NUST Student"
 
     async def get_calendar_events(self, sesskey: str) -> List[Dict[str, Any]]:
         """

@@ -43,7 +43,11 @@ class AuthService:
                 db.refresh(user)
                 logger.info(f"Created new NustPulse account for {full_name}")
             else:
-                # Update their stored password/section in case they changed it
+                # Always refresh name in case it was previously missing/wrong
+                full_name = await lms.get_user_full_name()
+                if full_name and full_name != "NUST Student":
+                    user.name = full_name
+                # Update stored password/section in case they changed
                 user.lms_password = encrypt_password(request.password)
                 user.section = request.section
                 db.commit()

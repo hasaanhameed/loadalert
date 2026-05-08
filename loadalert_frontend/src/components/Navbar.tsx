@@ -69,7 +69,7 @@ export const Navbar = () => {
             ) : (
               <Button
                 variant="default"
-                className="h-12 px-8 uppercase tracking-widest text-[10px] font-black italic bg-pure-snow text-obsidian-blood hover:bg-pure-snow/90 hover:scale-105 active:scale-95 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] transition-all duration-300 rounded-lg border border-pure-snow/20"
+                className="h-full py-3 px-10 uppercase tracking-[0.25em] text-xs font-black italic bg-pure-snow text-obsidian-blood hover:bg-pure-snow/90 hover:scale-105 active:scale-95 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] transition-all duration-300 rounded-lg border border-pure-snow/20"
                 asChild
               >
                 <Link to="/login">Login</Link>

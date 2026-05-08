@@ -37,7 +37,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-fired-cream flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-pure-snow flex items-center justify-center px-6 py-12">
       {/* Background patterns */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-obsidian-blood/10 blur-[120px]" />
