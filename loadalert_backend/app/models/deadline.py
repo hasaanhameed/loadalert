@@ -8,8 +8,8 @@ class Deadline(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     due_date = Column(Date, nullable=False)
-    estimated_effort = Column(Integer, nullable=False)
-    importance_level = Column(String, nullable=False)
+    course_name = Column(String, nullable=True)
+    lms_event_id = Column(Integer, unique=True, nullable=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 

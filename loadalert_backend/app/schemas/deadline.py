@@ -5,8 +5,10 @@ from typing import Optional
 class DeadlineBase(BaseModel):
     title: str
     due_date: date
-    estimated_effort: int
-    importance_level: str
+    course_name: Optional[str] = None
+    lms_event_id: Optional[int] = None
+    estimated_effort: Optional[int] = None
+    importance_level: Optional[str] = None
 
 class DeadlineCreate(DeadlineBase):
     pass
@@ -21,5 +23,6 @@ class DeadlineResponse(DeadlineBase):
 class DeadlineUpdate(BaseModel):
     title: Optional[str] = None
     due_date: Optional[date] = None
+    course_name: Optional[str] = None
     estimated_effort: Optional[int] = None
     importance_level: Optional[str] = None

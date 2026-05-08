@@ -1,11 +1,13 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class UserBase(BaseModel):
     name: str
-    email: str
+    lms_username: str
+    section: Optional[str] = None
 
 class UserCreate(UserBase):
-    password: str
+    lms_password: str
 
 class UserResponse(UserBase):
     id: int
@@ -13,9 +15,6 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-class UserUpdate(UserBase):
-    pass
-
-class ChangePasswordRequest(BaseModel):
-    current_password: str
-    new_password: str
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    section: Optional[str] = None
