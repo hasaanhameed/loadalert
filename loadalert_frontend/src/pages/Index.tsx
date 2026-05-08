@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { Activity, BarChart3, Calendar, Shield, Zap, ArrowRight } from "lucide-react";
+import { DnaHelix } from "@/components/DnaHelix";
 
 const features = [
   {
@@ -32,7 +33,12 @@ const Index = () => {
       <Navbar />
 
       {/* Hero Section - Strict Obsidian Editorial */}
-      <section className="relative pt-48 pb-32 px-6 overflow-hidden bg-pure-snow">
+      <section className="relative pt-48 pb-32 px-6 overflow-hidden bg-pure-snow min-h-[80vh] flex items-center">
+        {/* Full-height DNA Helix Background */}
+        <div className="absolute inset-y-0 right-0 w-full lg:w-1/2 opacity-100 pointer-events-none z-0">
+          <DnaHelix />
+        </div>
+
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-20">
             <div className="flex-1 text-center lg:text-left space-y-10 animate-fade-in">
@@ -42,7 +48,7 @@ const Index = () => {
               </h1>
 
               <p className="text-xl text-muted-foreground max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
-                A high-precision workload monitoring system for students who demand excellence. 
+                A high-precision workload monitoring system for students who demand excellence.
                 Stay ahead of the curve with predictive stress mapping.
               </p>
 
@@ -53,12 +59,8 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="flex-1 w-full relative animate-slide-up lg:pt-10 flex justify-center">
-              <div className="relative w-full max-w-md aspect-square bg-ash-white border border-obsidian-blood/5 flex items-center justify-center overflow-hidden shadow-2xl rounded-2xl">
-                {/* Hero animation placeholder area */}
-                <Activity className="h-24 w-24 text-obsidian-blood/10 animate-pulse" />
-              </div>
-            </div>
+            {/* Spacer for the helix animation on large screens */}
+            <div className="flex-1 w-full relative hidden lg:block" />
           </div>
         </div>
       </section>
@@ -68,7 +70,7 @@ const Index = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="mb-32 space-y-6 text-center lg:text-left">
             <h2 className="text-5xl font-black text-obsidian-blood tracking-tighter uppercase leading-none">
-              Precision <br /> 
+              Precision <br />
               Architecture.
             </h2>
             <div className="h-1 w-24 bg-obsidian-blood mx-auto lg:mx-0" />
