@@ -21,5 +21,5 @@ def update_current_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Updates the current user's profile (name, section, etc)."""
+    """Updates the current user's profile (name, etc)."""
     return UserService.update_user(db, current_user, request)

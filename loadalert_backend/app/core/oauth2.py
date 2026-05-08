@@ -36,7 +36,6 @@ def get_current_user(
         "id": user.id,
         "name": user.name,
         "lms_username": user.lms_username,
-        "section": user.section
     }
     redis_client.set_json(cache_key, user_dict, expiry=3600)
     return user

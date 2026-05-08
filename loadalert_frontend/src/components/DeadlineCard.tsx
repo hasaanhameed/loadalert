@@ -1,4 +1,4 @@
-import { Calendar, AlertTriangle, Trash2, GraduationCap, Pin, PinOff } from "lucide-react";
+import { Calendar, AlertTriangle, Trash2, GraduationCap, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Deadline } from "@/lib/types";
@@ -7,10 +7,10 @@ interface DeadlineCardProps {
   deadline: Deadline;
   onEdit?: (deadline: Deadline) => void;
   onDelete?: (id: string) => void;
-  onPin?: (id: string, isPinned: boolean) => void;
+  onToggleMyDeadlines?: (id: string, isAdded: boolean) => void;
 }
 
-export const DeadlineCard = ({ deadline, onDelete, onPin }: DeadlineCardProps) => {
+export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: DeadlineCardProps) => {
   const daysUntilDue = Math.ceil(
     (new Date(deadline.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
@@ -31,7 +31,7 @@ export const DeadlineCard = ({ deadline, onDelete, onPin }: DeadlineCardProps) =
                </span>
                {deadline.is_pinned && (
                  <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-fired-cream/20 text-obsidian-blood/60 rounded flex items-center gap-1.5">
-                   <Pin className="h-3 w-3 fill-current" /> My List
+                   <Plus className="h-3 w-3" /> Added to My List
                  </span>
                )}
              </div>
@@ -57,19 +57,29 @@ export const DeadlineCard = ({ deadline, onDelete, onPin }: DeadlineCardProps) =
         </div>
 
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          {deadline.lms_event_id && onPin && (
+          {deadline.lms_event_id && onToggleMyDeadlines && (
             <Button
               variant="ghost"
-              size="icon"
-              onClick={() => onPin(String(deadline.id), !deadline.is_pinned)}
+              size="sm"
+              onClick={() => onToggleMyDeadlines(String(deadline.id), !deadline.is_pinned)}
               className={cn(
-                "h-10 w-10 transition-colors",
+                "h-10 px-3 rounded-lg flex items-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest",
                 deadline.is_pinned 
                   ? "text-fired-cream hover:text-fired-cream/80 bg-fired-cream/5" 
                   : "text-obsidian-blood/30 hover:text-obsidian-blood hover:bg-obsidian-blood/5"
               )}
             >
-              {deadline.is_pinned ? <PinOff className="h-5 w-5" /> : <Pin className="h-5 w-5" />}
+              {deadline.is_pinned ? (
+                <>
+                  <X className="h-4 w-4" />
+                  <span>Remove List</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  <span>Add to My List</span>
+                </>
+              )}
             </Button>
           )}
           <Button

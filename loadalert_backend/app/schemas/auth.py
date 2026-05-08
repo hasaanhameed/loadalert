@@ -4,7 +4,6 @@ from .user import UserResponse
 class LMSLoginRequest(BaseModel):
     email: str
     password: str
-    section: str
 
 class LoginResponse(BaseModel):
     access_token: str

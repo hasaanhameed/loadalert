@@ -4,7 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { DeadlineCard } from "@/components/DeadlineCard";
 import { Deadline } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Calendar, Filter, GraduationCap, Loader2, Plus } from "lucide-react";
+import { Calendar, Filter, GraduationCap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -80,7 +80,7 @@ const Deadlines = () => {
           prev.map((d) => d.id === id ? { ...d, is_pinned: isPinned } : d)
         );
       }
-      toast.success(isPinned ? "Pinned to list" : "Removed from list");
+      toast.success(isPinned ? "Added to My Deadlines" : "Removed from My Deadlines");
     } catch (err) {
       console.error("Failed to toggle pin", err);
       toast.error("Action failed");
@@ -117,27 +117,6 @@ const Deadlines = () => {
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40">
                 {deadlines.length} Curated Items • Personal List
               </p>
-            </div>
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                asChild
-                className="h-14 px-8 rounded-xl border-obsidian-blood/10 text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] hover:bg-obsidian-blood/5 transition-all duration-300"
-              >
-                <Link to="/universal-pulse">
-                  <RefreshCcw className="h-4 w-4 mr-3" />
-                  Global Feed
-                </Link>
-              </Button>
-              <Button
-                variant="default"
-                size="lg"
-                className="h-14 px-8 rounded-xl bg-obsidian-blood text-pure-snow text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
-              >
-                <Plus className="h-4 w-4 mr-3" />
-                Add New
-              </Button>
             </div>
           </div>
 
@@ -188,7 +167,7 @@ const Deadlines = () => {
                   key={deadline.id}
                   deadline={deadline}
                   onDelete={handleDelete}
-                  onPin={handlePin}
+                  onToggleMyDeadlines={handlePin}
                 />
               ))
             ) : (
@@ -200,7 +179,7 @@ const Deadlines = () => {
                   No Personal Deadlines
                 </h3>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40 max-w-xs mx-auto leading-relaxed">
-                  Your personal list is empty. Add manual tasks or browse the <Link to="/universal-pulse" className="text-obsidian-blood underline">Global Feed</Link> to pin deadlines.
+                  Your personal list is empty. Add manual tasks or browse the <Link to="/universal-pulse" className="text-obsidian-blood underline">Global Feed</Link> to add deadlines.
                 </p>
               </div>
             )}

@@ -4,7 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { DeadlineCard } from "@/components/DeadlineCard";
 import { Deadline } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Filter, GraduationCap, Loader2, Zap } from "lucide-react";
+import { RefreshCcw, Filter, GraduationCap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -108,9 +108,6 @@ const UniversalPulse = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
             <div className="space-y-1">
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-fired-cream/10 rounded-lg">
-                  <Zap className="h-5 w-5 text-fired-cream fill-current" />
-                </div>
                 <h1 className="text-4xl font-black text-obsidian-blood uppercase tracking-tight italic">Universal Pulse</h1>
               </div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40">
@@ -185,7 +182,7 @@ const UniversalPulse = () => {
                   key={deadline.id}
                   deadline={deadline}
                   onDelete={handleDelete}
-                  onPin={handlePin}
+                  onToggleMyDeadlines={handlePin}
                 />
               ))
             ) : (
