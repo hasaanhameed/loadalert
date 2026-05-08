@@ -1,15 +1,15 @@
-import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+import api from "@/lib/axios";
+import { AuthResponse } from "@/lib/types";
 
 /**
  * LOGIN
  */
-export const loginUser = async (email: string, password: string) => {
+export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
   const formData = new URLSearchParams();
   formData.append("username", email);
   formData.append("password", password);
 
-  const res = await axios.post(`${API_BASE_URL}/login`, formData, {
+  const res = await api.post<AuthResponse>("/login", formData, {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
@@ -17,7 +17,6 @@ export const loginUser = async (email: string, password: string) => {
 
   return res.data;
 };
-
 
 /**
  * SIGNUP
@@ -27,16 +26,6 @@ export async function signupUser(
   email: string,
   password: string
 ) {
-  const response = await fetch(`${API_BASE_URL}/users/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail ?? "Signup failed");
-  }
-
-  return response.json();
+  const response = await api.post("/users/", { name, email, password });
+  return response.data;
 }

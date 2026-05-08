@@ -1,34 +1,7 @@
-import axios from "axios";
+import api from "@/lib/axios";
+import { DashboardSummary } from "@/lib/types";
 
-const API_URL = import.meta.env.VITE_API_URL;
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
-
-export interface WeeklyLoadDay {
-  day: string;
-  date: string;
-  deadlines: number;
-  hours: number;
-}
-
-export interface DashboardSummary {
-  upcoming_deadlines: number;
-  total_hours: number;
-  weekly_load: WeeklyLoadDay[];
-}
-
-export const getDashboardSummary = async () => {
-  const response = await axios.get<DashboardSummary>(
-    `${API_URL}/dashboard/summary`,
-    {
-      headers: getAuthHeaders(),
-    }
-  );
-
+export const getDashboardSummary = async (): Promise<DashboardSummary> => {
+  const response = await api.get<DashboardSummary>("/dashboard/summary");
   return response.data;
 };
