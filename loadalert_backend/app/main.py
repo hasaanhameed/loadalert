@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import user, authentication, deadline, dashboard, ai, stress, sync
 
-app = FastAPI(title="LoadAlert API")
+app = FastAPI(title="NustPulse API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,4 +23,4 @@ app.include_router(sync.router)
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to LoadAlert API"}
+    return {"message": "Welcome to NustPulse API"}

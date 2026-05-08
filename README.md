@@ -1,16 +1,16 @@
-# LoadAlert
+# NustPulse
 
-LoadAlert is a full-stack web application designed to help users monitor deadlines, understand workload distribution, and anticipate stress before it becomes overwhelming. Instead of treating deadlines as isolated events, LoadAlert models workload holistically and presents it in a way that supports better planning and decision-making.
+NustPulse is a full-stack web application designed to help users monitor deadlines, understand workload distribution, and anticipate stress before it becomes overwhelming. Instead of treating deadlines as isolated events, NustPulse models workload holistically and presents it in a way that supports better planning and decision-making.
 
-The core idea behind LoadAlert is simple: deadlines do not cause stress in isolation — poor distribution of effort over time does. This application provides visibility into that distribution and helps users stay ahead.
+The core idea behind NustPulse is simple: deadlines do not cause stress in isolation — poor distribution of effort over time does. This application provides visibility into that distribution and helps users stay ahead.
 
 ## Live Demo
 
-Frontend: https://loadalert.vercel.app
+Frontend: https://nustpulse.vercel.app
 
-## What LoadAlert Does
+## What NustPulse Does
 
-LoadAlert allows users to:
+NustPulse allows users to:
 - Create and manage deadlines with associated effort estimates
 - View prioritized tasks based on urgency and workload
 - Monitor workload concentration over time
