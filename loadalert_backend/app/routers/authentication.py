@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordRequestForm
 from app.database.database import get_db
 from app.services.auth_service import AuthService
-from app.schemas.auth import LoginResponse
+from app.schemas.auth import LoginResponse, LMSLoginRequest
 
 router = APIRouter(tags=['Authentication'])
 
 @router.post('/login', response_model=LoginResponse)
-def login(
-    request: OAuth2PasswordRequestForm = Depends(),
+async def login(
+    request: LMSLoginRequest,
     db: Session = Depends(get_db)
 ):
-    return AuthService.login(db, request)
+    return await AuthService.login(db, request)

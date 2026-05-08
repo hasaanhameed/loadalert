@@ -11,3 +11,6 @@ python-multipart
 groq
 redis
 passlib[bcrypt]
+httpx 
+beautifulsoup4 
+cryptography 
