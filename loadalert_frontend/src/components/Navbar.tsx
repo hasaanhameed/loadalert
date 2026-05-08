@@ -67,14 +67,13 @@ export const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <>
-                <Button variant="default" className="h-12 px-8 uppercase tracking-widest text-xs font-black transition-all duration-300" asChild>
-                  <Link to="/login">Login</Link>
-                </Button>
-                <Button variant="default" className="h-12 px-8 uppercase tracking-widest text-xs font-black shadow-lg transition-all duration-300" asChild>
-                  <Link to="/signup">Sign Up</Link>
-                </Button>
-              </>
+              <Button
+                variant="default"
+                className="h-12 px-8 uppercase tracking-widest text-[10px] font-black italic bg-pure-snow text-obsidian-blood hover:bg-pure-snow/90 hover:scale-105 active:scale-95 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] transition-all duration-300 rounded-lg border border-pure-snow/20"
+                asChild
+              >
+                <Link to="/login">Login</Link>
+              </Button>
             )}
           </div>
 
@@ -111,12 +110,12 @@ export const Navbar = () => {
                         key={link.path}
                         to={link.path}
                         onClick={() => setMobileMenuOpen(false)}
-                      className={cn(
-                        "flex items-center gap-5 px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all duration-300 rounded-md",
-                        isActive
-                          ? "bg-pure-snow text-obsidian-blood shadow-lg"
-                          : "text-pure-snow hover:text-white"
-                      )}
+                        className={cn(
+                          "flex items-center gap-5 px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all duration-300 rounded-md",
+                          isActive
+                            ? "bg-pure-snow text-obsidian-blood shadow-lg"
+                            : "text-pure-snow hover:text-white"
+                        )}
                       >
                         <Icon className="h-5 w-5" />
                         {link.name}
@@ -127,14 +126,13 @@ export const Navbar = () => {
               </>
             ) : (
               <div className="space-y-4">
-                <Button variant="default" className="w-full rounded-lg uppercase tracking-widest font-black h-14 transition-all duration-300" asChild>
+                <Button
+                  variant="default"
+                  className="w-full h-14 rounded-xl bg-pure-snow text-obsidian-blood font-black italic uppercase tracking-widest text-[10px] shadow-xl"
+                  asChild
+                >
                   <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
                     Login
-                  </Link>
-                </Button>
-                <Button variant="default" className="w-full rounded-lg uppercase tracking-widest font-black h-14 shadow-lg transition-all duration-300" asChild>
-                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
-                    Sign Up
                   </Link>
                 </Button>
               </div>

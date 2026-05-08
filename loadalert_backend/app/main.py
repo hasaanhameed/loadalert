@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import user, authentication, deadline, dashboard, ai, stress
+from app.routers import user, authentication, deadline, dashboard, ai, stress, sync
 
 app = FastAPI(title="LoadAlert API")
 
@@ -19,6 +19,7 @@ app.include_router(deadline.router)
 app.include_router(dashboard.router)
 app.include_router(ai.router)
 app.include_router(stress.router)
+app.include_router(sync.router)
 
 @app.get("/")
 def root():

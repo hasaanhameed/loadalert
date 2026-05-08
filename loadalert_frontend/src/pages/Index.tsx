@@ -51,11 +51,13 @@ const Index = () => {
                 Your University Life, <span className="text-obsidian-blood font-black">Synchronized.</span> The high-precision portal for NUST students to auto-sync LMS deadlines.
               </p>
 
-              <div className="flex justify-center lg:justify-start pt-6">
-                <Button size="xl" variant="default" className="font-black uppercase tracking-[0.2em] px-16 h-20 rounded-lg">
-                  Sync Your Portal
-                </Button>
-              </div>
+              <div className="flex flex-col sm:flex-row gap-6 pt-12">
+              <Button size="lg" className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 group" asChild>
+                <Link to="/login" className="flex items-center gap-3">
+                  Connect Portal <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
             </div>
 
             {/* Spacer for the helix animation on large screens */}
@@ -95,16 +97,21 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-20 px-6 bg-pure-snow border-t border-obsidian-blood/5">
-        <div className="container mx-auto max-w-6xl flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex items-center">
-            <span className="text-3xl font-black text-obsidian-blood uppercase tracking-tighter italic">NustPulse</span>
-          </div>
-          <div className="flex gap-12 text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
-            <span>Systems Normal</span>
-            <span>v1.0.4</span>
-            <span>© 2024</span>
+      {/* Minimalist Footer */}
+      <footer className="py-24 px-6 bg-pure-snow border-t border-obsidian-blood/10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex flex-col items-center text-center space-y-8">
+            <div className="flex items-center">
+              <span className="text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic">NustPulse</span>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-xl leading-relaxed font-medium">
+              The high-precision academic monitoring system for NUST. Synchronizing your portal, automating your deadlines, and mastering your focus.
+            </p>
+            <div className="pt-12 border-t border-obsidian-blood/5 w-full flex justify-center">
+              <div className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/30">
+                © 2026 NustPulse • v1.0.0 • Built for NUST
+              </div>
+            </div>
           </div>
         </div>
       </footer>

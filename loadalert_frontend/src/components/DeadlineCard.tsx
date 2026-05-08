@@ -1,14 +1,7 @@
-import { Calendar, Clock, AlertTriangle, Pencil, Trash2 } from "lucide-react";
+import { Calendar, AlertTriangle, Trash2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-export interface Deadline {
-  id: string;
-  title: string;
-  dueDate: string;
-  estimatedHours: number;
-  importance: "low" | "medium" | "high";
-}
+import { Deadline } from "@/lib/types";
 
 interface DeadlineCardProps {
   deadline: Deadline;
@@ -16,19 +9,7 @@ interface DeadlineCardProps {
   onDelete?: (id: string) => void;
 }
 
-const importanceStyles = {
-  low: "border-success/30 bg-success/5",
-  medium: "border-warning/30 bg-warning/5",
-  high: "border-destructive/30 bg-destructive/5",
-};
-
-const importanceBadge = {
-  low: "bg-success/20 text-success",
-  medium: "bg-warning/20 text-warning",
-  high: "bg-destructive/20 text-destructive",
-};
-
-export const DeadlineCard = ({ deadline, onEdit, onDelete }: DeadlineCardProps) => {
+export const DeadlineCard = ({ deadline, onDelete }: DeadlineCardProps) => {
   const daysUntilDue = Math.ceil(
     (new Date(deadline.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
@@ -36,37 +17,33 @@ export const DeadlineCard = ({ deadline, onEdit, onDelete }: DeadlineCardProps) 
   return (
     <div
       className={cn(
-        "glass-card p-5 transition-all duration-300 hover:shadow-lg group",
-        importanceStyles[deadline.importance]
+        "bg-pure-snow border border-obsidian-blood/5 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group rounded-xl"
       )}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 space-y-3">
-          <div className="flex items-center gap-3">
-            <h3 className="text-lg font-semibold text-foreground">{deadline.title}</h3>
-            <span
-              className={cn(
-                "px-2 py-0.5 text-xs font-medium rounded-full capitalize",
-                importanceBadge[deadline.importance]
-              )}
-            >
-              {deadline.importance}
-            </span>
+        <div className="flex-1 space-y-4">
+          <div className="space-y-1">
+             <div className="flex items-center gap-2 mb-1">
+               <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-obsidian-blood/5 text-obsidian-blood/60 rounded flex items-center gap-1.5">
+                 <GraduationCap className="h-3 w-3" /> {deadline.courseName || deadline.course_name || "General"}
+               </span>
+             </div>
+            <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic">{deadline.title}</h3>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              <span>{new Date(deadline.dueDate).toLocaleDateString()}</span>
+          <div className="flex flex-wrap items-center gap-5 text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>{new Date(deadline.dueDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              <span>{deadline.estimatedHours}h estimated</span>
-            </div>
-            {daysUntilDue <= 3 && daysUntilDue >= 0 && (
-              <div className="flex items-center gap-1.5 text-warning">
-                <AlertTriangle className="h-4 w-4" />
-                <span>{daysUntilDue === 0 ? "Due today!" : `${daysUntilDue} days left`}</span>
+            
+            {daysUntilDue <= 5 && daysUntilDue >= 0 && (
+              <div className={cn(
+                "flex items-center gap-1.5 font-black",
+                daysUntilDue <= 2 ? "text-red-500" : "text-amber-500"
+              )}>
+                <AlertTriangle className="h-3.5 w-3.5" />
+                <span>{daysUntilDue === 0 ? "Due today!" : `${daysUntilDue} days remaining`}</span>
               </div>
             )}
           </div>
@@ -76,18 +53,10 @@ export const DeadlineCard = ({ deadline, onEdit, onDelete }: DeadlineCardProps) 
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onEdit?.(deadline)}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            onClick={() => onDelete?.(String(deadline.id))}
+            className="h-10 w-10 text-obsidian-blood/30 hover:text-red-500 hover:bg-red-50 transition-colors"
           >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onDelete?.(deadline.id)}
-            className="h-8 w-8 text-muted-foreground hover:text-destructive"
-          >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-5 w-5" />
           </Button>
         </div>
       </div>

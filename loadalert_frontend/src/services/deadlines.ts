@@ -19,6 +19,10 @@ export const updateDeadline = async (
   return res.data;
 };
 
+export const syncDeadlines = async (): Promise<void> => {
+  await api.post("/sync/sync");
+};
+
 export const deleteDeadline = async (id: number): Promise<void> => {
   await api.delete(`/deadlines/${id}`);
 };

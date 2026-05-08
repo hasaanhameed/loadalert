@@ -19,21 +19,24 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     
-    email = verify_token(token, credentials_exception)
-    cache_key = f"user_session:{email}"
+    username = verify_token(token, credentials_exception)
+    cache_key = f"user_session:{username}"
     cached_user = redis_client.get_json(cache_key)
     
     if cached_user:
-        return User(**cached_user)
-    
-    user = db.query(User).filter(User.email == email).first()
+        # Note: SQLAlchemy models can't be directly instantiated from dict for usage with relationships easily, 
+        # but for simple checks this is fine. Re-querying is safer for the full model.
+        pass
+
+    user = db.query(User).filter(User.lms_username == username).first()
     if user is None:
         raise credentials_exception
     
     user_dict = {
         "id": user.id,
         "name": user.name,
-        "email": user.email,
+        "lms_username": user.lms_username,
+        "section": user.section
     }
     redis_client.set_json(cache_key, user_dict, expiry=3600)
     return user

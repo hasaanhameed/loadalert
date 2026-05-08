@@ -1,82 +1,110 @@
+import logging
 from datetime import datetime
 from sqlalchemy.orm import Session
+
+from app.services.lms_service import LMSSession
 from app.models.deadline import Deadline
 from app.models.user import User
-from app.services.lms_service import lms_service
 from app.services.crypto_service import decrypt_password
-import logging
 
 logger = logging.getLogger(__name__)
 
-async def sync_user_deadlines(db: Session, user: User):
-    """Performs a full sync of deadlines from LMS for a specific user."""
-    try:
-        # 1. Unscramble the password
-        password = decrypt_password(user.lms_password)
+# Moodle event types that represent student deadlines
+DEADLINE_EVENT_TYPES = {"assign", "assignment", "quiz", "due", "turnitintool"}
 
-        # 2. Log into LMS
-        logged_in = await lms_service.login(user.lms_username, password)
-        if not logged_in:
-            logger.error(f"Sync failed: Could not log in for user {user.lms_username}")
-            return False
 
-        # 3. Get the session key and fetch assignments
-        sesskey = await lms_service.get_sesskey()
-        if not sesskey:
-            logger.error(f"Sync failed: Could not get sesskey for {user.lms_username}")
-            return False
+class SyncService:
+    @staticmethod
+    async def sync_user_deadlines(db: Session, user: User, password: str) -> bool:
+        """
+        Synchronises assignments from NUST LMS for a specific user.
+        Creates a fresh LMSSession per call to avoid stale-cookie failures.
+        """
+        session = LMSSession()
+        try:
+            # 1. Log into LMS with a clean session
+            is_logged_in = await session.login(user.lms_username, password)
+            if not is_logged_in:
+                logger.error(f"Sync failed: Could not log in for user {user.lms_username}")
+                return False
 
-        raw_events = await lms_service.fetch_deadlines(sesskey)
-        
-        # 4. Filter and Save
-        synced_count = 0
-        for event in raw_events:
-            title = event.get('name', '')
-            course_name = event.get('course', {}).get('fullname', '')
-            due_timestamp = event.get('timesort', 0)
-            lms_id = event.get('id')
+            # 2. Get sesskey
+            sesskey = await session.get_sesskey()
+            if not sesskey:
+                logger.error(f"Sync failed: Could not retrieve sesskey for {user.lms_username}")
+                return False
 
-            # --- SMART FILTERING LOGIC ---
-            if user.section:
-                user_section_letter = user.section.split('-')[-1][-1].upper() if '-' in user.section else user.section[-1].upper()
-                
-                # Check if other sections are mentioned
-                skip = False
-                for other_letter in ['A', 'B', 'C', 'D', 'E', 'F']:
-                    if other_letter != user_section_letter:
-                        if f"Section {other_letter}" in title or f"({other_letter})" in title:
-                            skip = True
-                            break
-                if skip:
+            # 3. Fetch calendar events
+            events = await session.get_calendar_events(sesskey)
+            logger.info(f"Retrieved {len(events)} events from LMS for {user.lms_username}")
+
+            # 4. Process events and upsert into database
+            synced = 0
+            for event in events:
+                event_type = (event.get("eventtype") or "").lower()
+                if event_type not in DEADLINE_EVENT_TYPES:
                     continue
 
-            # Check if this deadline already exists
-            existing = db.query(Deadline).filter(
-                Deadline.user_id == user.id,
-                Deadline.lms_event_id == lms_id
-            ).first()
+                lms_event_id = event.get("id")
+                title        = event.get("name", "Untitled")
+                timestart    = event.get("timestart")
+                course_name  = event.get("course", {}).get("fullname", "Unknown Course")
 
-            due_date = datetime.fromtimestamp(due_timestamp).date()
+                if not lms_event_id or not timestart:
+                    continue
 
-            if not existing:
-                new_deadline = Deadline(
-                    title=title,
-                    due_date=due_date,
-                    course_name=course_name,
-                    lms_event_id=lms_id,
-                    user_id=user.id
+                due_date = datetime.fromtimestamp(timestart)
+
+                existing = (
+                    db.query(Deadline)
+                    .filter(
+                        Deadline.user_id == user.id,
+                        Deadline.lms_event_id == lms_event_id,
+                    )
+                    .first()
                 )
-                db.add(new_deadline)
-                synced_count += 1
-            else:
-                existing.due_date = due_date
-                existing.title = title
 
-        db.commit()
-        logger.info(f"Successfully synced {synced_count} new deadlines for {user.lms_username}")
-        return True
+                if existing:
+                    existing.title       = title
+                    existing.due_date    = due_date
+                    existing.course_name = course_name
+                else:
+                    db.add(
+                        Deadline(
+                            title=title,
+                            due_date=due_date,
+                            course_name=course_name,
+                            lms_event_id=lms_event_id,
+                            user_id=user.id,
+                        )
+                    )
+                synced += 1
 
-    except Exception as e:
-        logger.error(f"Error during sync process: {str(e)}")
-        db.rollback()
-        return False
+            db.commit()
+            logger.info(
+                f"Successfully synced {synced} deadline(s) for {user.lms_username}"
+            )
+            return True
+
+        except Exception as e:
+            logger.error(f"Critical error during sync for {user.lms_username}: {str(e)}")
+            db.rollback()
+            return False
+        finally:
+            await session.close()
+
+    @staticmethod
+    async def sync_by_stored_credentials(db: Session, user: User) -> bool:
+        """
+        Syncs using the password stored in the DB (called from the /sync endpoint).
+        """
+        try:
+            plain_password = decrypt_password(user.lms_password)
+        except Exception as e:
+            logger.error(f"Could not decrypt password for {user.lms_username}: {e}")
+            return False
+
+        return await SyncService.sync_user_deadlines(db, user, plain_password)
+
+
+sync_service = SyncService()

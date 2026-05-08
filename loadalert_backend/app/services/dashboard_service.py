@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import date, timedelta
 from app.models.deadline import Deadline
-from app.schemas.dashboard import DashboardSummary, WeeklyLoadDay
+from app.schemas.dashboard import DashboardSummary, WeeklyLoadDay, CourseSummary
 from app.cache.redis_client import redis_client
 import logging
 
@@ -17,42 +18,50 @@ class DashboardService:
             return DashboardSummary(**cached_data)
         
         today = date.today()
-        end_date = today + timedelta(days=6)
+        # Fetch deadlines for the next 14 days for a better overview
+        end_date = today + timedelta(days=13)
 
         deadlines = db.query(Deadline).filter(
             Deadline.user_id == current_user.id,
-            Deadline.due_date >= today,
-            Deadline.due_date <= end_date
+            Deadline.due_date >= today
         ).all()
 
+        # 1. Weekly Load (Next 7 days)
         weekly_map = {}
         for i in range(7):
             current_date = today + timedelta(days=i)
             weekly_map[current_date] = {
                 "day": current_date.strftime("%a"),
                 "date": current_date,
-                "deadlines": 0,
-                "hours": 0
+                "deadlines": 0
             }
         
         for deadline in deadlines:
-            bucket = weekly_map.get(deadline.due_date)
-            if bucket:
-                bucket["deadlines"] += 1
-                bucket["hours"] += deadline.estimated_effort
-
-        upcoming_deadlines = len(deadlines)
-        total_hours = sum(d["hours"] for d in weekly_map.values())
+            if today <= deadline.due_date <= today + timedelta(days=6):
+                bucket = weekly_map.get(deadline.due_date)
+                if bucket:
+                    bucket["deadlines"] += 1
 
         weekly_load = [
             WeeklyLoadDay(**day)
             for day in weekly_map.values()
         ]
 
+        # 2. Course Summary
+        course_counts = {}
+        for deadline in deadlines:
+            name = deadline.course_name or "General"
+            course_counts[name] = course_counts.get(name, 0) + 1
+        
+        course_summary = [
+            CourseSummary(course_name=name, count=count)
+            for name, count in sorted(course_counts.items(), key=lambda x: x[1], reverse=True)
+        ]
+
         result = DashboardSummary(
-            upcoming_deadlines=upcoming_deadlines,
-            total_hours=total_hours,
-            weekly_load=weekly_load
+            upcoming_deadlines=len(deadlines),
+            weekly_load=weekly_load,
+            course_summary=course_summary
         )
         
         try:

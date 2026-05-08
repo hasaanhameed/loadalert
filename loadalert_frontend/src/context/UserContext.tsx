@@ -1,10 +1,5 @@
-import { createContext, useContext, useState, useEffect } from "react";
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-}
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { User } from "@/lib/types";
 
 interface UserContextType {
   user: User | null;
@@ -14,46 +9,47 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Storage key for user data
-const USER_DATA_KEY = "user_data";
-
-export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user data on app start
   useEffect(() => {
-    const storedUser = localStorage.getItem(USER_DATA_KEY);
-    if (storedUser) {
+    // Load user from localStorage on init
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
       try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Failed to parse stored user data:", error);
-        localStorage.removeItem(USER_DATA_KEY);
+        const parsed = JSON.parse(savedUser);
+        // Ensure email exists for backward compatibility if needed by components
+        if (parsed && !parsed.email) parsed.email = parsed.lms_username;
+        setUser(parsed);
+      } catch (e) {
+        console.error("Failed to parse saved user", e);
       }
     }
     setIsLoading(false);
   }, []);
 
-  // Wrapper to persist user data when it changes
-  const persistUser = (newUser: User | null) => {
-    if (newUser) {
-      localStorage.setItem(USER_DATA_KEY, JSON.stringify(newUser));
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
-      localStorage.removeItem(USER_DATA_KEY);
+      localStorage.removeItem("user");
     }
-    setUser(newUser);
-  };
+  }, [user]);
 
   return (
-    <UserContext.Provider value={{ user, setUser: persistUser, isLoading }}>
-      {children}
-    </UserContext.Provider>
+    <div className={isLoading ? "opacity-0" : "opacity-100 transition-opacity"}>
+      <UserContext.Provider value={{ user, setUser, isLoading }}>
+        {children}
+      </UserContext.Provider>
+    </div>
   );
 };
 
 export const useUser = () => {
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUser must be used inside UserProvider");
-  return ctx;
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
 };

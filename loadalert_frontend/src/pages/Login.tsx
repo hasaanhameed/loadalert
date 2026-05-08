@@ -1,89 +1,86 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "@/services/auth";
-import { useUser } from "@/context/UserContext";
 import { useAuth } from "@/context/AuthContext";
-
+import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Activity, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader2, Fingerprint, Lock, School } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [section, setSection] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
-  const { setUser } = useUser();
   const { login } = useAuth();
+  const { setUser } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const data = await loginUser(email, password);
-
-      // store token through auth context (keeps isAuthenticated in sync)
+      const data = await loginUser(email, password, section || "BSCS-13D");
       login(data.access_token);
-
-      // store user directly
       setUser(data.user);
-
-      navigate("/");
+      navigate("/deadlines");
     } catch (error) {
       console.error(error);
-      alert("Login failed");
+      alert("Verification failed. Please check your LMS credentials.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12">
-      {/* Background glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-fired-cream flex items-center justify-center px-6 py-12">
+      {/* Background patterns */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-obsidian-blood/10 blur-[120px]" />
+        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-obsidian-blood/5 blur-[120px]" />
+      </div>
 
-      <div className="w-full max-w-md relative">
+      <div className="w-full max-w-md relative z-10">
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-obsidian-blood/40 hover:text-obsidian-blood transition-all duration-300 mb-10 group"
         >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to home</span>
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Back to Overview</span>
         </Link>
 
-        <div className="glass-card p-8">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Activity className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground">LoadAlert</span>
+        <div className="bg-pure-snow border border-obsidian-blood/10 shadow-2xl rounded-2xl p-10 md:p-12">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <span className="text-4xl font-black text-obsidian-blood uppercase tracking-tighter italic">NustPulse</span>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
-            <p className="text-muted-foreground mt-2">Sign in to your account</p>
+            <h1 className="text-xl font-black text-obsidian-blood uppercase tracking-tight">Connect Portal</h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                Email
+              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60 ml-1 flex items-center gap-2">
+                <Fingerprint className="h-3 w-3" /> LMS ID
               </Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@university.edu"
-                className="bg-muted/50 border-border/50 focus:border-primary h-12"
+                placeholder="name.bscs23seecs"
+                className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood h-14 rounded-xl font-medium"
                 disabled={isLoading}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">
-                Password
+              <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60 ml-1 flex items-center gap-2">
+                <Lock className="h-3 w-3" /> Portal Password
               </Label>
               <div className="relative">
                 <Input
@@ -91,8 +88,8 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="bg-muted/50 border-border/50 focus:border-primary h-12 pr-12"
+                  placeholder="Enter your LMS password"
+                  className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood h-14 rounded-xl font-medium pr-12"
                   disabled={isLoading}
                   required
                 />
@@ -100,37 +97,51 @@ const Login = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-obsidian-blood/30 hover:text-obsidian-blood transition-colors disabled:opacity-50"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              variant="default"
-              size="lg"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
+            <div className="space-y-2">
+              <Label htmlFor="section" className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60 ml-1 flex items-center gap-2">
+                <School className="h-3 w-3" /> Academic Section
+              </Label>
+              <Input
+                id="section"
+                type="text"
+                value={section}
+                onChange={(e) => setSection(e.target.value.toUpperCase())}
+                placeholder="e.g. BSCS-13D"
+                className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood h-14 rounded-xl font-medium"
+                disabled={isLoading}
+                required
+              />
+            </div>
+
+            <div className="pt-4">
+              <Button
+                type="submit"
+                variant="default"
+                size="lg"
+                className="w-full h-16 rounded-xl text-[10px] font-black uppercase italic tracking-[0.2em] bg-pure-snow text-obsidian-blood shadow-xl hover:bg-pure-snow/90 hover:scale-[1.01] active:scale-[0.99] border border-obsidian-blood/5 transition-all duration-300"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  "Sync & Connect"
+                )}
+              </Button>
+            </div>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-primary hover:text-primary/80 font-medium transition-colors">
-              Sign up
-            </Link>
-          </p>
+          <div className="mt-12 pt-8 border-t border-obsidian-blood/5 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/30 leading-relaxed">
+              Authenticated via NUST Portal SSL
+            </p>
+          </div>
         </div>
       </div>
     </div>

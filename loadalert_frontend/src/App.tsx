@@ -10,10 +10,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Deadlines from "./pages/Deadlines";
-import Stress from "./pages/Stress";
 import Priorities from "./pages/Priorities";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -32,7 +30,6 @@ const App = () => (
               {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
 
               {/* Protected routes */}
               <Route
@@ -48,14 +45,6 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Deadlines />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/stress"
-                element={
-                  <ProtectedRoute>
-                    <Stress />
                   </ProtectedRoute>
                 }
               />

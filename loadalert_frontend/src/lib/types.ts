@@ -3,23 +3,30 @@ export interface WeeklyLoadDay {
   day: string;
   date: string;
   deadlines: number;
-  hours: number;
+}
+
+export interface CourseSummary {
+  course_name: string;
+  count: number;
 }
 
 export interface DashboardSummary {
   upcoming_deadlines: number;
-  total_hours: number;
   weekly_load: WeeklyLoadDay[];
+  course_summary: CourseSummary[];
 }
 
 // Deadline Types
 export interface Deadline {
-  id: number;
+  id: string | number;
   title: string;
-  due_date: string;
-  estimated_effort: number;
-  importance_level: string;
-  user_id: number;
+  dueDate: string; // CamelCase for frontend
+  due_date?: string; // SnakeCase for backend mapping
+  courseName?: string | null;
+  course_name?: string | null;
+  estimatedHours?: number;
+  importance?: string;
+  lms_event_id?: number | null;
 }
 
 export interface CreateDeadlineInput {
@@ -29,89 +36,29 @@ export interface CreateDeadlineInput {
   importance_level: string;
 }
 
-export interface UpdateDeadlineInput {
-  title?: string;
-  due_date?: string;
-  estimated_effort?: number;
-  importance_level?: string;
-}
-
-// AI & Prediction Types
-export interface StressPredictionDay {
-  day: string;
-  stressLevel: number;
-}
-
-export interface StressPredictionResponse {
-  daily_stress: StressPredictionDay[];
-  weekly_stress_score: number;
-  risk_level: string;
-  peak_stress_day: string;
-  explanation: string;
-}
-
-export interface StressPredictionInputDay {
-  day: string;
-  hours: number;
-  deadlines: number;
-}
-
-export interface PriorityTaskInput {
-  id: number;
-  title: string;
-  due_date: string;
-  estimated_effort: number;
-  importance_level: string;
-}
-
-export interface PriorityTaskOutput {
-  id: number;
-  title: string;
-  rank: number;
-  reason: string;
-  estimated_effort: number;
-  due_date: string;
-}
-
-// Stress Analysis Types
-export interface StressContributorInput {
-  id: number;
-  title: string;
-  due_date: string;
-  estimated_effort: number;
-  importance_level: string;
-}
-
-export interface StressContributorOutput {
-  id: number;
-  title: string;
-  contribution: number;
-  due_date: string;
-}
-
-export interface StressContributorsResponse {
-  contributors: StressContributorOutput[];
-  max_contribution: number;
-}
+export interface UpdateDeadlineInput extends Partial<CreateDeadlineInput> {}
 
 // User Types
 export interface User {
   id: number;
   name: string;
-  email: string;
+  email?: string; // Added back to resolve UserContext errors
+  lms_username: string;
+  section: string;
 }
 
 export interface UserUpdateInput {
   name: string;
-  email: string;
-}
-
-export interface PasswordChangeInput {
-  current_password: string;
-  new_password: string;
+  section: string;
 }
 
 export interface AuthResponse {
   access_token: string;
   token_type: string;
+  user: User;
+}
+
+export interface PasswordChangeInput {
+  current_password: string;
+  new_password: string;
 }

@@ -1,7 +1,26 @@
 import api from "@/lib/axios";
-import { DashboardSummary } from "@/lib/types";
 
+export interface WeeklyLoadDay {
+  day: str;
+  date: string;
+  deadlines: number;
+}
+
+export interface CourseSummary {
+  course_name: string;
+  count: number;
+}
+
+export interface DashboardSummary {
+  upcoming_deadlines: number;
+  weekly_load: WeeklyLoadDay[];
+  course_summary: CourseSummary[];
+}
+
+/**
+ * GET DASHBOARD SUMMARY
+ */
 export const getDashboardSummary = async (): Promise<DashboardSummary> => {
-  const response = await api.get<DashboardSummary>("/dashboard/summary");
-  return response.data;
+  const res = await api.get<DashboardSummary>("/dashboard/summary");
+  return res.data;
 };

@@ -2,30 +2,16 @@ import api from "@/lib/axios";
 import { AuthResponse } from "@/lib/types";
 
 /**
- * LOGIN
+ * LOGIN / CONNECT PORTAL
  */
-export const loginUser = async (email: string, password: string): Promise<AuthResponse> => {
-  const formData = new URLSearchParams();
-  formData.append("username", email);
-  formData.append("password", password);
-
-  const res = await api.post<AuthResponse>("/login", formData, {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
+export const loginUser = async (email: string, password: string, section: string): Promise<AuthResponse> => {
+  const res = await api.post<AuthResponse>("/login", {
+    email,
+    password,
+    section
   });
 
   return res.data;
 };
 
-/**
- * SIGNUP
- */
-export async function signupUser(
-  name: string,
-  email: string,
-  password: string
-) {
-  const response = await api.post("/users/", { name, email, password });
-  return response.data;
-}
+// Signup is removed as users are auto-created via login
