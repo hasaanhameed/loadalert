@@ -14,7 +14,7 @@ const navLinks = [
 ];
 
 const privateLinks = [
-  { name: "Home", path: "/", icon: Activity },
+  { name: "Home", path: "/", icon: Home },
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "Deadlines", path: "/deadlines", icon: Calendar },
   { name: "Stress Overview", path: "/stress", icon: BarChart3 },
@@ -27,12 +27,11 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-obsidian-blood/5 bg-fired-cream">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-obsidian-blood/5 bg-fired-cream transition-all duration-300">
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <Activity className="h-6 w-6 text-pure-snow" />
-            <span className="text-xl font-black text-pure-snow tracking-tighter uppercase">LoadAlert</span>
+          <Link to="/" className="flex items-center group">
+            <span className="text-2xl font-black text-pure-snow tracking-tighter uppercase italic">NustPulse</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -48,7 +47,7 @@ export const Navbar = () => {
                       "px-6 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-300 rounded-md",
                       isActive
                         ? "bg-pure-snow text-obsidian-blood shadow-lg"
-                        : "text-ash-white/70 hover:text-pure-snow"
+                        : "text-pure-snow hover:text-white"
                     )}
                   >
                     {link.name}
@@ -61,8 +60,11 @@ export const Navbar = () => {
           {/* Desktop Auth Buttons / User Name */}
           <div className="hidden md:flex items-center gap-4">
             {user ? (
-              <div className="px-6 py-2 bg-ash-white border border-obsidian-blood/5 text-obsidian-blood text-sm font-black uppercase tracking-widest rounded-lg">
-                {user.name}
+              <div className="flex items-center gap-4 pl-6 border-l border-pure-snow/10">
+                <span className="text-xs font-black uppercase tracking-widest text-pure-snow hidden lg:block">{user.name}</span>
+                <div className="w-10 h-10 bg-pure-snow text-obsidian-blood rounded-full flex items-center justify-center shadow-xl border-2 border-pure-snow/20 transition-transform hover:scale-105 cursor-pointer">
+                  <User className="h-5 w-5" />
+                </div>
               </div>
             ) : (
               <>
@@ -113,7 +115,7 @@ export const Navbar = () => {
                         "flex items-center gap-5 px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all duration-300 rounded-md",
                         isActive
                           ? "bg-pure-snow text-obsidian-blood shadow-lg"
-                          : "text-ash-white/70 hover:text-pure-snow"
+                          : "text-pure-snow hover:text-white"
                       )}
                       >
                         <Icon className="h-5 w-5" />

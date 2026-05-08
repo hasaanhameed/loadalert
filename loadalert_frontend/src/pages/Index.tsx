@@ -7,13 +7,13 @@ import { DnaHelix } from "@/components/DnaHelix";
 const features = [
   {
     icon: Calendar,
-    title: "Track Deadlines",
-    description: "Organize all your assignments, projects, and exams in one place.",
+    title: "LMS Auto-Sync",
+    description: "Connect your portal once. Auto-fetch all assignments and quizzes instantly.",
   },
   {
     icon: BarChart3,
-    title: "Predict Stress",
-    description: "AI-powered analysis shows when workload will peak.",
+    title: "Visual Load",
+    description: "See your weekly density at a glance with high-precision heatmaps.",
   },
   {
     icon: Shield,
@@ -43,18 +43,17 @@ const Index = () => {
           <div className="flex flex-col lg:flex-row items-center gap-20">
             <div className="flex-1 text-center lg:text-left space-y-10 animate-fade-in">
               <h1 className="text-7xl md:text-9xl font-black text-obsidian-blood tracking-tighter leading-[0.85] uppercase">
-                Manage <br />
-                Pressure.
+                Nust <br />
+                Pulse.
               </h1>
 
               <p className="text-xl text-muted-foreground max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
-                A high-precision workload monitoring system for students who demand excellence.
-                Stay ahead of the curve with predictive stress mapping.
+                Your University Life, <span className="text-obsidian-blood font-black">Synchronized.</span> The high-precision portal for NUST students to auto-sync LMS deadlines.
               </p>
 
               <div className="flex justify-center lg:justify-start pt-6">
                 <Button size="xl" variant="default" className="font-black uppercase tracking-[0.2em] px-16 h-20 rounded-lg">
-                  Get Started
+                  Sync Your Portal
                 </Button>
               </div>
             </div>
@@ -99,9 +98,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-20 px-6 bg-pure-snow border-t border-obsidian-blood/5">
         <div className="container mx-auto max-w-6xl flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex items-center gap-3">
-            <Activity className="h-6 w-6 text-obsidian-blood" />
-            <span className="text-2xl font-black text-obsidian-blood uppercase tracking-tighter">LoadAlert</span>
+          <div className="flex items-center">
+            <span className="text-3xl font-black text-obsidian-blood uppercase tracking-tighter italic">NustPulse</span>
           </div>
           <div className="flex gap-12 text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
             <span>Systems Normal</span>
