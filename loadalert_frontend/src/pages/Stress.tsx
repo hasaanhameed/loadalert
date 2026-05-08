@@ -3,15 +3,15 @@ import { Navbar } from "@/components/Navbar";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { StressContributor } from "@/components/StressContributor";
 import { RiskBadge } from "@/components/RiskBadge";
-import { Activity, TrendingDown, TrendingUp} from "lucide-react";
-import { getDashboardSummary, DashboardSummary } from "@/api/dashboard";
-import { fetchDeadlines, Deadline } from "@/api/deadlines";
+import { Activity, TrendingDown, TrendingUp } from "lucide-react";
+import { getDashboardSummary, DashboardSummary } from "@/services/dashboard";
+import { fetchDeadlines, Deadline } from "@/services/deadlines";
 import {
   getStressContributors,
   getStressPrediction,
   StressContributorOutput,
   StressPredictionResponse,
-} from "@/api/stress";
+} from "@/services/stress";
 import { useToast } from "@/hooks/use-toast";
 
 import {
@@ -160,7 +160,7 @@ const Stress = () => {
       </div>
     );
   }
-  
+
 
   return (
     <div className="min-h-screen pb-12">

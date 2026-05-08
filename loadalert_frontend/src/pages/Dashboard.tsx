@@ -4,8 +4,8 @@ import { RiskBadge } from "@/components/RiskBadge";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { Activity, Calendar, AlertTriangle, TrendingUp, Clock, Sun, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getDashboardSummary, DashboardSummary } from "@/api/dashboard";
-import { getStressPrediction, StressPredictionResponse } from "@/api/ai";
+import { getDashboardSummary, DashboardSummary } from "@/services/dashboard";
+import { getStressPrediction, StressPredictionResponse } from "@/services/ai";
 import { useAuth } from "@/context/AuthContext";
 import { generateWeeklyLoadHash, getCachedPrediction, cachePrediction } from "@/utils/aiCache";
 
@@ -23,7 +23,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         if (!token) return;
-        
+
         // Fetch dashboard summary - FIXED: removed token parameter
         const data = await getDashboardSummary();
         setSummary(data);
@@ -31,7 +31,7 @@ const Dashboard = () => {
         // Fetch AI stress prediction if there's data
         if (data.weekly_load && data.weekly_load.length > 0) {
           const currentHash = generateWeeklyLoadHash(data.weekly_load);
-          
+
           // Check cache first
           const cachedPrediction = getCachedPrediction(currentHash);
           if (cachedPrediction) {
@@ -71,14 +71,14 @@ const Dashboard = () => {
   // Higher percentage of week's deadlines in early days = higher urgency
   const calculateUrgencyIndex = () => {
     if (!summary?.weekly_load || summary.upcoming_deadlines === 0) return 0;
-    
+
     // Calculate what percentage of deadlines are in the first 3 days
     const firstThreeDays = summary.weekly_load.slice(0, 3);
     const earlyDeadlines = firstThreeDays.reduce((sum, day) => sum + day.deadlines, 0);
-    
+
     // Calculate urgency as percentage
     const urgencyPercentage = Math.round((earlyDeadlines / summary.upcoming_deadlines) * 100);
-    
+
     return Math.min(urgencyPercentage, 100);
   };
 
@@ -109,7 +109,7 @@ const Dashboard = () => {
   // Get peak stress day percentage
   const getPeakStressPercentage = () => {
     if (!stressPrediction?.peak_stress_day || !stressPrediction?.daily_stress) return 0;
-    
+
     const peakDay = stressPrediction.daily_stress.find(
       d => d.day === stressPrediction.peak_stress_day
     );
@@ -182,22 +182,18 @@ const Dashboard = () => {
 
           {/* AI Stress Insights */}
           {stressPrediction && !aiLoading && (
-            <div className={`glass-card p-6 mb-8 border-${
-              stressPrediction.risk_level === "high" ? "destructive" :
-              stressPrediction.risk_level === "medium" ? "warning" : "green-500"
-            }/30 bg-${
-              stressPrediction.risk_level === "high" ? "destructive" :
-              stressPrediction.risk_level === "medium" ? "warning" : "green-500"
-            }/5`}>
+            <div className={`glass-card p-6 mb-8 border-${stressPrediction.risk_level === "high" ? "destructive" :
+                stressPrediction.risk_level === "medium" ? "warning" : "green-500"
+              }/30 bg-${stressPrediction.risk_level === "high" ? "destructive" :
+                stressPrediction.risk_level === "medium" ? "warning" : "green-500"
+              }/5`}>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className={`p-3 rounded-xl bg-${
-                  stressPrediction.risk_level === "high" ? "destructive" :
-                  stressPrediction.risk_level === "medium" ? "warning" : "green-500"
-                }/10`}>
-                  <AlertTriangle className={`h-6 w-6 ${
-                    stressPrediction.risk_level === "high" ? "text-destructive" :
-                    stressPrediction.risk_level === "medium" ? "text-warning" : "text-green-500"
-                  }`} />
+                <div className={`p-3 rounded-xl bg-${stressPrediction.risk_level === "high" ? "destructive" :
+                    stressPrediction.risk_level === "medium" ? "warning" : "green-500"
+                  }/10`}>
+                  <AlertTriangle className={`h-6 w-6 ${stressPrediction.risk_level === "high" ? "text-destructive" :
+                      stressPrediction.risk_level === "medium" ? "text-warning" : "text-green-500"
+                    }`} />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-foreground mb-1">
@@ -270,8 +266,8 @@ const Dashboard = () => {
                   summary?.weekly_load.map(day => {
                     const stressData = stressPrediction?.daily_stress.find(d => d.day === day.day);
                     // If there are no tasks/deadlines, stress should be 0
-                    const stress = (day.deadlines === 0 && day.hours === 0) 
-                      ? 0 
+                    const stress = (day.deadlines === 0 && day.hours === 0)
+                      ? 0
                       : stressData?.stressLevel ?? 0;
                     return {
                       day: day.day,

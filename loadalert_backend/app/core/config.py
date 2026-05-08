@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     
     # Redis
     REDIS_URL: str
+    USE_REDIS: bool = True
     
     # Auth
     SECRET_KEY: str

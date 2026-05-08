@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "@/api/auth";
+import { loginUser } from "@/services/auth";
 import { useUser } from "@/context/UserContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -21,16 +21,16 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     try {
       const data = await loginUser(email, password);
-  
+
       // store token through auth context (keeps isAuthenticated in sync)
       login(data.access_token);
-  
+
       // store user directly
       setUser(data.user);
-  
+
       navigate("/");
     } catch (error) {
       console.error(error);
@@ -38,8 +38,8 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-  };  
-  
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12">
       {/* Background glow */}
@@ -106,12 +106,12 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            
-            <Button 
-              type="submit" 
-              variant="default" 
-              size="lg" 
-              className="w-full" 
+
+            <Button
+              type="submit"
+              variant="default"
+              size="lg"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? (

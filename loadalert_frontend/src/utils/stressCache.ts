@@ -1,4 +1,4 @@
-import { StressPredictionResponse } from "@/api/stress";
+import { StressPredictionResponse } from "@/services/stress";
 
 export interface CachedStressContributors {
   contributors: {

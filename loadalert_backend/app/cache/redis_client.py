@@ -5,15 +5,23 @@ from app.core.config import settings
 
 class RedisClient:
     def __init__(self):
-        if not settings.REDIS_URL:
-            raise RuntimeError("REDIS_URL is not set")
+        self.use_redis = settings.USE_REDIS
+        self.redis_client = None
+        
+        if self.use_redis:
+            if not settings.REDIS_URL:
+                raise RuntimeError("REDIS_URL is not set")
 
-        self.redis_client = redis.Redis.from_url(
-            settings.REDIS_URL,
-            decode_responses=True
-        )
+            self.redis_client = redis.Redis.from_url(
+                settings.REDIS_URL,
+                decode_responses=True
+            )
+        else:
+            print("Redis is disabled via settings. Skipping initialization.")
     
     def get(self, key: str) -> Optional[str]:
+        if not self.use_redis or not self.redis_client:
+            return None
         try:
             return self.redis_client.get(key)
         except Exception as e:
@@ -21,6 +29,8 @@ class RedisClient:
             return None
     
     def set(self, key: str, value: str, expiry: int = 3600):
+        if not self.use_redis or not self.redis_client:
+            return False
         try:
             self.redis_client.setex(key, expiry, value)
             return True
@@ -29,6 +39,8 @@ class RedisClient:
             return False
     
     def delete(self, key: str):
+        if not self.use_redis or not self.redis_client:
+            return False
         try:
             self.redis_client.delete(key)
             return True
@@ -37,6 +49,8 @@ class RedisClient:
             return False
     
     def delete_pattern(self, pattern: str) -> int:
+        if not self.use_redis or not self.redis_client:
+            return 0
         try:
             deleted_count = 0
             cursor = 0
@@ -53,6 +67,8 @@ class RedisClient:
             return 0
     
     def exists(self, key: str) -> bool:
+        if not self.use_redis or not self.redis_client:
+            return False
         try:
             return self.redis_client.exists(key) > 0
         except Exception as e:
@@ -60,6 +76,8 @@ class RedisClient:
             return False
     
     def set_json(self, key: str, value: dict, expiry: int = 3600):
+        if not self.use_redis:
+            return False
         try:
             json_value = json.dumps(value)
             return self.set(key, json_value, expiry)
@@ -68,6 +86,8 @@ class RedisClient:
             return False
     
     def get_json(self, key: str) -> Optional[dict]:
+        if not self.use_redis:
+            return None
         try:
             value = self.get(key)
             if value:
@@ -78,6 +98,8 @@ class RedisClient:
             return None
     
     def ping(self) -> bool:
+        if not self.use_redis or not self.redis_client:
+            return False
         try:
             return self.redis_client.ping()
         except Exception as e:

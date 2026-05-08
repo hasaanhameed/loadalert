@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signupUser } from "@/api/auth";
+import { signupUser } from "@/services/auth";
 import { Activity, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 
 const Signup = () => {
@@ -198,10 +198,10 @@ const Signup = () => {
                   )}
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   variant="default"
-                  size="lg" 
+                  size="lg"
                   className="w-full rounded-lg font-black uppercase tracking-[0.3em] h-16 mt-4"
                   disabled={isLoading}
                 >

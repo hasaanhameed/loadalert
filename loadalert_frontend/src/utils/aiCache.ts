@@ -1,5 +1,5 @@
-import { StressPredictionResponse } from "@/api/ai";
-import { WeeklyLoadDay } from "@/api/dashboard";
+import { StressPredictionResponse } from "@/services/ai";
+import { WeeklyLoadDay } from "@/services/dashboard";
 
 // Cache keys
 const AI_PREDICTION_CACHE_KEY = "ai_stress_prediction_cache";

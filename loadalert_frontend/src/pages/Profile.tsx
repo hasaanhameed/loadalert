@@ -6,7 +6,7 @@ import { User, Shield, LogOut } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { updateUser, changePassword } from "@/api/users";
+import { updateUser, changePassword } from "@/services/users";
 
 const Profile = () => {
   const { user, setUser } = useUser();

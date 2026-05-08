@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { fetchDeadlines } from "@/api/deadlines";
-import { getPriorities } from "@/api/ai";
+import { fetchDeadlines } from "@/services/deadlines";
+import { getPriorities } from "@/services/ai";
 import { generatePrioritiesHash, getCachedPriorities, cachePriorities } from "@/utils/aiCache";
 
 const Priorities = () => {
@@ -34,10 +34,10 @@ const Priorities = () => {
 
         // Generate hash from current tasks
         const currentHash = generatePrioritiesHash(tasks);
-        
+
         // Try to get cached priorities
         const cachedData = getCachedPriorities(currentHash);
-        
+
         if (cachedData) {
           // Use cached data
           console.log("Using cached priorities");
@@ -57,10 +57,10 @@ const Priorities = () => {
         // No cache, fetch from API
         console.log("Fetching priorities from API");
         const result = await getPriorities(token, tasks);
-        
+
         // Cache the raw result
         cachePriorities(currentHash, result.priorities);
-        
+
         // Transform snake_case API response to camelCase for PriorityCard
         const formattedPriorities = result.priorities.map((task: any) => ({
           id: task.id.toString(),
@@ -70,7 +70,7 @@ const Priorities = () => {
           dueDate: task.due_date,
           priority: task.rank,
         }));
-        
+
         setPriorities(formattedPriorities);
       } catch (err) {
         console.error("Failed to load priorities", err);
@@ -105,7 +105,7 @@ const Priorities = () => {
       </div>
     );
   }
-  
+
 
   return (
     <div className="min-h-screen pb-12">
@@ -132,8 +132,8 @@ const Priorities = () => {
                   Smart Priority Algorithm
                 </h3>
                 <p className="text-muted-foreground">
-                  Tasks are prioritized based on deadline proximity, estimated effort, and 
-                  importance level. Quick wins are boosted to help you build momentum and 
+                  Tasks are prioritized based on deadline proximity, estimated effort, and
+                  importance level. Quick wins are boosted to help you build momentum and
                   reduce cognitive load early.
                 </p>
               </div>

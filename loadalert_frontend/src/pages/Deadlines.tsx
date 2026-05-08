@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {fetchDeadlines,createDeadline,updateDeadline,deleteDeadline} from "@/api/deadlines";
+import { fetchDeadlines, createDeadline, updateDeadline, deleteDeadline } from "@/services/deadlines";
 import { invalidateAIPredictionCache } from "@/utils/aiCache";
 
 import { Navbar } from "@/components/Navbar";
@@ -21,7 +21,7 @@ const Deadlines = () => {
     const loadDeadlines = async () => {
       try {
         const data = await fetchDeadlines();
-  
+
         // map backend → frontend shape
         const formatted = data.map((d: any) => ({
           id: d.id,
@@ -30,7 +30,7 @@ const Deadlines = () => {
           estimatedHours: d.estimated_effort,
           importance: d.importance_level.toLowerCase(),
         }));
-  
+
         setDeadlines(formatted);
       } catch (err) {
         console.error("Failed to fetch deadlines", err);
@@ -38,9 +38,9 @@ const Deadlines = () => {
         setLoading(false);
       }
     };
-  
+
     loadDeadlines();
-  }, []);  
+  }, []);
 
 
   const handleSaveDeadline = async (data: Omit<Deadline, "id">) => {
@@ -51,7 +51,7 @@ const Deadlines = () => {
       importance_level:
         data.importance.charAt(0).toUpperCase() + data.importance.slice(1),
     };
-  
+
     try {
       // 🟢 EDIT
       if (editingDeadline) {
@@ -59,24 +59,24 @@ const Deadlines = () => {
           Number(editingDeadline.id),
           payload
         );
-  
+
         setDeadlines((prev) =>
           prev.map((d) =>
             d.id === editingDeadline.id
               ? {
-                  id: updated.id,
-                  title: updated.title,
-                  dueDate: updated.due_date,
-                  estimatedHours: updated.estimated_effort,
-                  importance: updated.importance_level.toLowerCase(),
-                }
+                id: updated.id,
+                title: updated.title,
+                dueDate: updated.due_date,
+                estimatedHours: updated.estimated_effort,
+                importance: updated.importance_level.toLowerCase(),
+              }
               : d
           )
         );
       }
       else {
         const created = await createDeadline(payload);
-  
+
         setDeadlines((prev) => [
           ...prev,
           {
@@ -88,10 +88,10 @@ const Deadlines = () => {
           },
         ]);
       }
-  
+
       setIsModalOpen(false);
       setEditingDeadline(null);
-      
+
       // Invalidate AI prediction cache since deadlines changed
       invalidateAIPredictionCache();
     } catch (err) {
@@ -103,12 +103,12 @@ const Deadlines = () => {
     setEditingDeadline(deadline);
     setIsModalOpen(true);
   };
-  
+
   const handleDelete = async (id: string) => {
     try {
       await deleteDeadline(Number(id));
       setDeadlines((prev) => prev.filter((d) => d.id !== id));
-      
+
       // Invalidate AI prediction cache since deadlines changed
       invalidateAIPredictionCache();
     } catch (err) {
@@ -159,11 +159,10 @@ const Deadlines = () => {
                   <button
                     key={level}
                     onClick={() => setFilter(level)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                      filter === level
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === level
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
+                      }`}
                   >
                     {level.charAt(0).toUpperCase() + level.slice(1)}
                   </button>
@@ -211,10 +210,10 @@ const Deadlines = () => {
       </main>
 
       <AddDeadlineModal
-      open={isModalOpen}
-      onOpenChange={setIsModalOpen}
-      onSave={handleSaveDeadline}
-      editingDeadline={editingDeadline}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSave={handleSaveDeadline}
+        editingDeadline={editingDeadline}
       />
 
     </div>
