@@ -8,7 +8,6 @@ psycopg2-binary
 bcrypt==4.0.1
 python-jose
 python-multipart
-groq
 redis
 passlib[bcrypt]
 httpx 

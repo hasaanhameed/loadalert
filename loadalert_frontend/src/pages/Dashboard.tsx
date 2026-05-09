@@ -1,55 +1,25 @@
 import { Navbar } from "@/components/Navbar";
 import { StatsCard } from "@/components/StatsCard";
-import { RiskBadge } from "@/components/RiskBadge";
 import { WeeklyChart } from "@/components/WeeklyChart";
-import { Activity, Calendar, AlertTriangle, TrendingUp, Clock, Sun, Zap } from "lucide-react";
+import { Calendar, Clock, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDashboardSummary, DashboardSummary } from "@/services/dashboard";
-import { getStressPrediction, StressPredictionResponse } from "@/services/ai";
 import { useAuth } from "@/context/AuthContext";
-import { generateWeeklyLoadHash, getCachedPrediction, cachePrediction } from "@/utils/aiCache";
 
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [stressPrediction, setStressPrediction] = useState<StressPredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!token) return;
 
-        // Fetch dashboard summary - FIXED: removed token parameter
         const data = await getDashboardSummary();
         setSummary(data);
-
-        // Fetch AI stress prediction if there's data
-        if (data.weekly_load && data.weekly_load.length > 0) {
-          const currentHash = generateWeeklyLoadHash(data.weekly_load);
-
-          // Check cache first
-          const cachedPrediction = getCachedPrediction(currentHash);
-          if (cachedPrediction) {
-            setStressPrediction(cachedPrediction);
-          } else {
-            // Only call AI if cache is invalid or missing
-            setAiLoading(true);
-            try {
-              const prediction = await getStressPrediction(token, data.weekly_load);
-              setStressPrediction(prediction);
-              cachePrediction(currentHash, prediction);
-            } catch (error) {
-              console.error("Failed to load stress prediction", error);
-            } finally {
-              setAiLoading(false);
-            }
-          }
-        }
       } catch (error) {
         console.error("Failed to load dashboard summary", error);
       } finally {
@@ -60,74 +30,16 @@ const Dashboard = () => {
     fetchData();
   }, [token]);
 
-  // Calculate Free Days (days with no deadlines and minimal hours)
-  const calculateFreeDays = () => {
-    if (!summary?.weekly_load) return 0;
-    return summary.weekly_load.filter(day => day.deadlines === 0 && day.hours === 0).length;
-  };
-
-  // Calculate Urgency Index (percentage based on upcoming deadlines in next 3 days)
-  // Since we don't have individual task data here, we'll use a proxy:
-  // Higher percentage of week's deadlines in early days = higher urgency
-  const calculateUrgencyIndex = () => {
-    if (!summary?.weekly_load || summary.upcoming_deadlines === 0) return 0;
-
-    // Calculate what percentage of deadlines are in the first 3 days
-    const firstThreeDays = summary.weekly_load.slice(0, 3);
-    const earlyDeadlines = firstThreeDays.reduce((sum, day) => sum + day.deadlines, 0);
-
-    // Calculate urgency as percentage
-    const urgencyPercentage = Math.round((earlyDeadlines / summary.upcoming_deadlines) * 100);
-
-    return Math.min(urgencyPercentage, 100);
-  };
-
-  const freeDays = calculateFreeDays();
-  const urgencyIndex = calculateUrgencyIndex();
-
-  // Get risk color for styling
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case "low":
-        return "text-green-500";
-      case "medium":
-        return "text-yellow-500";
-      case "high":
-        return "text-red-500";
-      default:
-        return "text-muted-foreground";
-    }
-  };
-
-  // Get urgency color based on index
-  const getUrgencyColor = (index: number) => {
-    if (index >= 70) return "bg-destructive";
-    if (index >= 40) return "bg-warning";
-    return "bg-green-500";
-  };
-
-  // Get peak stress day percentage
-  const getPeakStressPercentage = () => {
-    if (!stressPrediction?.peak_stress_day || !stressPrediction?.daily_stress) return 0;
-
-    const peakDay = stressPrediction.daily_stress.find(
-      d => d.day === stressPrediction.peak_stress_day
-    );
-    return peakDay ? peakDay.stressLevel : 0;
-  };
-  const peakStress = getPeakStressPercentage();
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-pure-snow">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-primary/40 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+            <div className="w-16 h-16 border-4 border-obsidian-blood/5 border-t-fired-cream rounded-full animate-spin"></div>
           </div>
           <div className="text-center">
-            <h2 className="text-xl font-semibold text-foreground mb-1">Loading Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Preparing your workload overview...</p>
+            <h2 className="text-xl font-black text-obsidian-blood uppercase italic tracking-tight">Pulse Loading</h2>
+            <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">Preparing workload summary...</p>
           </div>
         </div>
       </div>
@@ -135,276 +47,115 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen bg-pure-snow pb-20">
       <Navbar />
 
-      <main className="pt-24 px-6">
+      <main className="pt-28 px-6">
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Your weekly workload overview at a glance.
+          <div className="mb-12">
+            <h1 className="text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic mb-2">Dashboard</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-obsidian-blood/40">
+              System Health • Weekly Workload Overview
             </p>
           </div>
 
           {/* Stats Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatsCard
-              title="Weekly Stress Score"
-              value={aiLoading ? "..." : (stressPrediction?.weekly_stress_score.toString() ?? "—")}
-              subtitle={aiLoading ? "Calculating..." : (stressPrediction ? "AI prediction" : "No data")}
-              icon={Activity}
-              variant="default"
-            />
-            <StatsCard
-              title="Risk Level"
-              value={aiLoading ? "..." : (stressPrediction?.risk_level.toUpperCase() ?? "—")}
-              subtitle={aiLoading ? "Analyzing..." : (stressPrediction ? "Current status" : "No data")}
-              icon={AlertTriangle}
-              variant="default"
-            />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-10">
             <StatsCard
               title="Upcoming Deadlines"
               value={summary?.upcoming_deadlines.toString() ?? "0"}
-              subtitle="In the next 7 days"
-              icon={Calendar}
+              subtitle="7-Day active window"
               variant="default"
             />
             <StatsCard
-              title="Hours Needed"
-              value={`${summary?.total_hours ?? 0}h`}
-              subtitle="Estimated total effort"
-              icon={Clock}
-              variant="default"
+              title="Active Pulse Streams"
+              value={summary?.course_summary.length.toString() ?? "0"}
+              subtitle="Monitored course modules"
+              variant="warning"
             />
           </div>
 
-          {/* AI Stress Insights */}
-          {stressPrediction && !aiLoading && (
-            <div className={`glass-card p-6 mb-8 border-${stressPrediction.risk_level === "high" ? "destructive" :
-                stressPrediction.risk_level === "medium" ? "warning" : "green-500"
-              }/30 bg-${stressPrediction.risk_level === "high" ? "destructive" :
-                stressPrediction.risk_level === "medium" ? "warning" : "green-500"
-              }/5`}>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className={`p-3 rounded-xl bg-${stressPrediction.risk_level === "high" ? "destructive" :
-                    stressPrediction.risk_level === "medium" ? "warning" : "green-500"
-                  }/10`}>
-                  <AlertTriangle className={`h-6 w-6 ${stressPrediction.risk_level === "high" ? "text-destructive" :
-                      stressPrediction.risk_level === "medium" ? "text-warning" : "text-green-500"
-                    }`} />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    AI Stress Insights
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {stressPrediction.explanation}
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <Button variant="hero" size="sm" asChild>
-                    <Link to="/priorities">View Priorities</Link>
-                  </Button>
-                  <Button variant="heroFilled" size="sm" asChild>
-                    <Link to="/deadlines">Manage Deadlines</Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Loading state for AI */}
-          {aiLoading && (
-            <div className="glass-card p-6 mb-8 border-primary/30 bg-primary/5">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-primary/10 animate-pulse">
-                  <Activity className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    Analyzing Your Workload...
-                  </h3>
-                  <p className="text-muted-foreground">
-                    AI is calculating your stress levels and providing insights.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* No data state */}
-          {!stressPrediction && !aiLoading && !loading && (
-            <div className="glass-card p-6 mb-8 border-warning/30 bg-warning/5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="p-3 rounded-xl bg-warning/10">
-                  <AlertTriangle className="h-6 w-6 text-warning" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground mb-1">
-                    No Stress Data Available
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Add some deadlines to get AI-powered stress predictions and insights.
-                  </p>
-                </div>
-                <div className="flex gap-3">
-                  <Button variant="heroFilled" size="sm" asChild>
-                    <Link to="/deadlines">Add Deadlines</Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Charts Row */}
-          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid lg:grid-cols-3 gap-8 mb-10">
             <div className="lg:col-span-2">
               <WeeklyChart
                 data={
-                  summary?.weekly_load.map(day => {
-                    const stressData = stressPrediction?.daily_stress.find(d => d.day === day.day);
-                    // If there are no tasks/deadlines, stress should be 0
-                    const stress = (day.deadlines === 0 && day.hours === 0)
-                      ? 0
-                      : stressData?.stressLevel ?? 0;
-                    return {
-                      day: day.day,
-                      deadlines: day.deadlines,
-                      hours: day.hours,
-                      stress: stress
-                    };
-                  }) ?? []
+                  summary?.weekly_load.map(day => ({
+                    day: day.day,
+                    deadlines: day.deadlines
+                  })) ?? []
                 }
               />
             </div>
 
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Quick Stats
+            <div className="bg-pure-snow border border-obsidian-blood/5 p-8 rounded-2xl shadow-sm">
+              <h3 className="text-xs font-black text-obsidian-blood uppercase tracking-[0.2em] mb-8 pb-4 border-b border-obsidian-blood/5">
+                Module Distribution
               </h3>
 
               <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">
-                      Current Risk Level
-                    </span>
+                {summary?.course_summary && summary.course_summary.length > 0 ? (
+                  summary.course_summary.map((course, index) => (
+                    <div key={course.course_name} className="flex flex-col gap-2 group">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60 truncate max-w-[180px] group-hover:text-obsidian-blood transition-colors">
+                          {course.course_name}
+                        </span>
+                        <span className="text-[10px] font-black text-fired-cream italic">
+                          {course.count}
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-obsidian-blood/5 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-fired-cream rounded-full transition-all duration-700"
+                          style={{ 
+                            width: `${(course.count / summary.upcoming_deadlines) * 100}%`,
+                            transitionDelay: `${index * 50}ms`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/20">
+                      No stream data available.
+                    </p>
                   </div>
-                  {stressPrediction && !aiLoading ? (
-                    <RiskBadge level={stressPrediction.risk_level} size="lg" />
-                  ) : (
-                    <span className="text-sm text-muted-foreground">—</span>
-                  )}
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">
-                      Peak Stress Day
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {stressPrediction && !aiLoading ? stressPrediction.peak_stress_day : "—"}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-muted-foreground">
-                      Peak Stress Level
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {peakStress}%
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-destructive rounded-full transition-all"
-                      style={{ width: `${peakStress}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Sun className="h-3.5 w-3.5" />
-                      Free Days
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {freeDays} / 7
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 rounded-full transition-all"
-                      style={{ width: `${(freeDays / 7) * 100}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Zap className="h-3.5 w-3.5" />
-                      Urgency Index (Next 3 Days)
-                    </span>
-                    <span className="text-sm font-medium text-foreground">
-                      {urgencyIndex}%
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${getUrgencyColor(urgencyIndex)}`}
-                      style={{ width: `${urgencyIndex}%` }}
-                    />
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 gap-6">
             <Link
               to="/deadlines"
-              className="glass-card p-6 group hover:border-primary/30 transition-all"
+              className="bg-pure-snow border border-obsidian-blood/5 p-10 rounded-2xl group hover:border-fired-cream/30 transition-all shadow-sm"
             >
-              <Calendar className="h-8 w-8 text-primary mb-3" />
-              <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                Manage Deadlines
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Add, edit, or remove deadlines
-              </p>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
+                  Pulse Tracker
+                </h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
+                  Manage personal academic deadlines
+                </p>
+              </div>
             </Link>
 
             <Link
-              to="/stress"
-              className="glass-card p-6 group hover:border-primary/30 transition-all"
+              to="/universal-pulse"
+              className="bg-pure-snow border border-obsidian-blood/5 p-10 rounded-2xl group hover:border-fired-cream/30 transition-all shadow-sm"
             >
-              <Activity className="h-8 w-8 text-primary mb-3" />
-              <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                Stress Breakdown
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                See what's causing stress
-              </p>
-            </Link>
-
-            <Link
-              to="/priorities"
-              className="glass-card p-6 group hover:border-primary/30 transition-all"
-            >
-              <TrendingUp className="h-8 w-8 text-primary mb-3" />
-              <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                Get Priorities
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Know what to work on first
-              </p>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
+                  Global Stream
+                </h3>
+                <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
+                  Synchronize with university LMS
+                </p>
+              </div>
             </Link>
           </div>
         </div>

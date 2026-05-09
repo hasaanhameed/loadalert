@@ -2,169 +2,70 @@ import { cn } from "@/lib/utils";
 
 type DayData = {
   day: string;
-  hours: number;
   deadlines: number;
-  stress?: number; // Changed from stressLevel to stress
-  stressLevel?: number; // Keep for backward compatibility
 };
 
 interface WeeklyChartProps {
   data: DayData[];
 }
 
-const getStressColor = (level: number) => {
-  if (level <= 30) return "bg-success";
-  if (level <= 60) return "bg-warning";
-  return "bg-destructive";
-};
-
 export const WeeklyChart = ({ data }: WeeklyChartProps) => {
-  // Check if we have any stress data
-  const hasStressData = data.some((d) => (d.stress !== undefined && d.stress !== null) || (d.stressLevel !== undefined && d.stressLevel !== null));
+  const maxDeadlines = Math.max(...data.map((d) => d.deadlines), 1);
   
-  if (!hasStressData) {
-    // Show a simple workload chart if no stress data
-    return (
-      <div className="glass-card p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-6">Weekly Workload</h3>
-        
-        <div className="flex items-end justify-between gap-3 h-48">
-          {data.map((day, index) => {
-            const maxValue = Math.max(...data.map(d => Math.max(d.hours, d.deadlines * 2)), 10);
-            const hoursHeight = (day.hours / maxValue) * 100;
-            const deadlinesHeight = (day.deadlines * 2 / maxValue) * 100;
-            
-            return (
-              <div
-                key={day.day}
-                className="flex-1 flex flex-col items-center gap-2"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="relative w-full flex flex-col items-center">
-                  <span className="text-xs text-muted-foreground mb-1">
-                    {day.hours}h
-                  </span>
-                  <div className="w-full flex gap-1 items-end" style={{ height: '100%', minHeight: '120px' }}>
-                    <div
-                      className="flex-1 bg-primary rounded-t-lg transition-all duration-500"
-                      style={{ height: `${hoursHeight}%`, minHeight: hoursHeight > 0 ? "8px" : "0" }}
-                      title={`${day.hours} hours`}
-                    />
-                    <div
-                      className="flex-1 bg-chart-2 rounded-t-lg transition-all duration-500"
-                      style={{ height: `${deadlinesHeight}%`, minHeight: deadlinesHeight > 0 ? "8px" : "0" }}
-                      title={`${day.deadlines} deadlines`}
-                    />
-                  </div>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-foreground">{day.day}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {day.deadlines} task{day.deadlines !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-border/50">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-primary" />
-            <span className="text-xs text-muted-foreground">Hours</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-chart-2" />
-            <span className="text-xs text-muted-foreground">Deadlines</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show stress chart if we have stress data
-  const maxStress = 100;
-
   return (
-    <div className="glass-card p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-6">Weekly Stress Timeline</h3>
+    <div className="bg-pure-snow border border-obsidian-blood/5 p-8 rounded-2xl shadow-sm h-full flex flex-col">
+      <h3 className="text-xs font-black text-obsidian-blood uppercase tracking-[0.2em] mb-8 pb-4 border-b border-obsidian-blood/5">
+        Weekly Pulse Distribution
+      </h3>
       
-      <div className="space-y-2">
-        {/* Percentage labels row - fixed at top */}
-        <div className="flex justify-between gap-3 h-6">
-          {data.map((day) => {
-            const stressValue = (day.deadlines === 0 && day.hours === 0) 
-              ? 0 
-              : (day.stress ?? day.stressLevel ?? 0);
-            return (
-              <div key={`label-${day.day}`} className="flex-1 flex items-center justify-center">
-                <span className="text-xs text-muted-foreground">
-                  {stressValue}%
+      <div className="flex-1 flex items-end justify-between gap-4 min-h-[220px]">
+        {data.map((day, index) => {
+          const percentage = (day.deadlines / maxDeadlines) * 100;
+          
+          return (
+            <div
+              key={day.day}
+              className="flex-1 flex flex-col items-center gap-6 group"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="relative w-full flex flex-col items-center justify-end h-48">
+                <span className={cn(
+                  "text-[10px] font-black mb-3 transition-all duration-300 italic",
+                  day.deadlines > 0 ? "text-fired-cream opacity-100" : "text-obsidian-blood/10 opacity-0 group-hover:opacity-100"
+                )}>
+                  {day.deadlines}
                 </span>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Chart bars container - fixed height */}
-        <div className="flex items-end justify-between gap-3" style={{ height: '192px' }}>
-          {data.map((day, index) => {
-            // If there are no tasks/deadlines, stress must be 0
-            const stressValue = (day.deadlines === 0 && day.hours === 0) 
-              ? 0 
-              : (day.stress ?? day.stressLevel ?? 0);
-            // Calculate bar height as percentage of container height (192px)
-            const barHeight = Math.min((stressValue / maxStress) * 192, 192);
-            
-            return (
-              <div
-                key={day.day}
-                className="flex-1 flex justify-center items-end h-full"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div
+                
+                <div 
                   className={cn(
-                    "w-full max-w-[40px] rounded-t-lg transition-all duration-500 ease-out",
-                    getStressColor(stressValue)
+                    "w-full max-w-[24px] rounded-t-sm transition-all duration-1000 ease-out shadow-sm",
+                    day.deadlines > 0 ? "bg-fired-cream" : "bg-obsidian-blood/5"
                   )}
                   style={{ 
-                    height: `${barHeight}px`, 
-                    minHeight: stressValue > 0 ? "8px" : "4px",
-                    maxHeight: '192px'
+                    height: `${Math.max(percentage, 2)}%`,
                   }}
                 />
               </div>
-            );
-          })}
-        </div>
-        
-        {/* Day labels row - fixed at bottom */}
-        <div className="flex justify-between gap-3 h-12 mt-2">
-          {data.map((day) => (
-            <div key={`day-${day.day}`} className="flex-1 flex flex-col items-center justify-start">
-              <p className="text-sm font-medium text-foreground">{day.day}</p>
-              <p className="text-xs text-muted-foreground">
-                {day.deadlines} task{day.deadlines !== 1 ? "s" : ""}
-              </p>
+              
+              <div className="text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/60 group-hover:text-fired-cream transition-colors">
+                  {day.day}
+                </p>
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-border/50">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-success" />
-          <span className="text-xs text-muted-foreground">Low (0-30%)</span>
+      <div className="mt-8 pt-6 border-t border-obsidian-blood/5 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-2.5 h-2.5 bg-fired-cream shadow-sm" />
+          <span className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/40">Load Intensity</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-warning" />
-          <span className="text-xs text-muted-foreground">Medium (31-60%)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-destructive" />
-          <span className="text-xs text-muted-foreground">High (61-100%)</span>
+        <div className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/20 italic">
+          Pulse Active
         </div>
       </div>
     </div>
   );
-};
+};

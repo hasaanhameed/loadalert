@@ -10,7 +10,6 @@ const navLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "My Deadlines", path: "/deadlines", icon: Calendar },
   { name: "Universal Pulse", path: "/universal-pulse", icon: Activity },
-  { name: "Stress Overview", path: "/stress", icon: BarChart3 },
   { name: "Profile", path: "/profile", icon: User },
 ];
 
@@ -19,7 +18,6 @@ const privateLinks = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "My Deadlines", path: "/deadlines", icon: Calendar },
   { name: "Universal Pulse", path: "/universal-pulse", icon: Activity },
-  { name: "Stress Overview", path: "/stress", icon: BarChart3 },
   { name: "Profile", path: "/profile", icon: User },
 ];
 

@@ -63,17 +63,21 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
-    background: var(--gradient-hero);
+    background: var(--pure-snow);
     min-height: 100vh;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-card/40 border border-border/60 rounded-lg;
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-card);
-    background-image: var(--gradient-card);
+    @apply bg-pure-snow border border-obsidian-blood/5 rounded-2xl;
+    box-shadow: 0 4px 20px rgba(26, 0, 5, 0.02);
+    transition: all 0.3s ease;
+  }
+
+  .pulse-card {
+    @apply bg-pure-snow border border-obsidian-blood/5 rounded-2xl p-8;
+    box-shadow: 0 4px 24px -1px rgba(26, 0, 5, 0.03);
   }
 
   .glow-effect {
