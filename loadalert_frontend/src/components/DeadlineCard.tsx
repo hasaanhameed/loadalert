@@ -1,4 +1,5 @@
-import { Calendar, AlertTriangle, Trash2, GraduationCap, Plus, X } from "lucide-react";
+import { useState } from "react";
+import { Calendar, AlertTriangle, Trash2, GraduationCap, Plus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Deadline } from "@/lib/types";
@@ -11,9 +12,21 @@ interface DeadlineCardProps {
 }
 
 export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: DeadlineCardProps) => {
+  const [isToggling, setIsToggling] = useState(false);
+  
   const daysUntilDue = Math.ceil(
     (new Date(deadline.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   );
+
+  const handleToggle = async () => {
+    if (!onToggleMyDeadlines) return;
+    setIsToggling(true);
+    try {
+      await onToggleMyDeadlines(String(deadline.id), !deadline.is_pinned);
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   return (
     <div
@@ -30,7 +43,7 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
                  <GraduationCap className="h-3 w-3" /> {deadline.courseName || deadline.course_name || "General"}
                </span>
                {deadline.is_pinned && (
-                 <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-fired-cream/20 text-obsidian-blood/60 rounded flex items-center gap-1.5">
+                 <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-fired-cream/20 text-obsidian-blood/60 rounded flex items-center gap-1.5 animate-in fade-in zoom-in duration-300">
                    <Plus className="h-3 w-3" /> Added to My List
                  </span>
                )}
@@ -56,23 +69,26 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
           </div>
         </div>
 
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
           {deadline.lms_event_id && onToggleMyDeadlines && (
             <Button
-              variant="ghost"
+              variant="link"
               size="sm"
-              onClick={() => onToggleMyDeadlines(String(deadline.id), !deadline.is_pinned)}
+              onClick={handleToggle}
+              disabled={isToggling}
               className={cn(
-                "h-10 px-3 rounded-lg flex items-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest",
+                "h-auto p-0 flex items-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest hover:no-underline",
                 deadline.is_pinned 
-                  ? "text-fired-cream hover:text-fired-cream/80 bg-fired-cream/5" 
-                  : "text-obsidian-blood/30 hover:text-obsidian-blood hover:bg-obsidian-blood/5"
+                  ? "text-primary hover:text-fired-cream" 
+                  : "text-obsidian-blood/30 hover:text-obsidian-blood"
               )}
             >
-              {deadline.is_pinned ? (
+              {isToggling ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : deadline.is_pinned ? (
                 <>
                   <X className="h-4 w-4" />
-                  <span>Remove List</span>
+                  <span>Remove from My Deadlines</span>
                 </>
               ) : (
                 <>

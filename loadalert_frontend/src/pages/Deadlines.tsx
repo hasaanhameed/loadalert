@@ -115,7 +115,7 @@ const Deadlines = () => {
             <div className="space-y-1">
               <h1 className="text-4xl font-black text-obsidian-blood uppercase tracking-tight italic">My Deadlines</h1>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40">
-                {deadlines.length} Curated Items • Personal List
+                {deadlines.length} Active Deadlines • Personal List
               </p>
             </div>
           </div>
