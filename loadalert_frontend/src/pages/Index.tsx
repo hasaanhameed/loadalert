@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { Activity, BarChart3, Calendar, Shield, Zap, ArrowRight } from "lucide-react";
 import { DnaHelix } from "@/components/DnaHelix";
+import { useUser } from "@/context/UserContext";
 
 const features = [
   {
@@ -28,6 +29,12 @@ const features = [
 ];
 
 const Index = () => {
+  const { user } = useUser();
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />

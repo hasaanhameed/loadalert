@@ -5,16 +5,7 @@ import { Activity, Home, LayoutDashboard, Calendar, BarChart3, User, Menu, X } f
 import { cn } from "@/lib/utils";
 import { useUser } from "@/context/UserContext";
 
-const navLinks = [
-  { name: "Home", path: "/", icon: Home },
-  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "My Deadlines", path: "/deadlines", icon: Calendar },
-  { name: "Universal Pulse", path: "/universal-pulse", icon: Activity },
-  { name: "Profile", path: "/profile", icon: User },
-];
-
 const privateLinks = [
-  { name: "Home", path: "/", icon: Home },
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "My Deadlines", path: "/deadlines", icon: Calendar },
   { name: "Universal Pulse", path: "/universal-pulse", icon: Activity },
@@ -30,7 +21,7 @@ export const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-obsidian-blood/5 bg-fired-cream transition-all duration-300">
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
-          <Link to="/" className="flex items-center group">
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center group">
             <span className="text-2xl font-black text-pure-snow tracking-tighter uppercase italic">NustPulse</span>
           </Link>
 
