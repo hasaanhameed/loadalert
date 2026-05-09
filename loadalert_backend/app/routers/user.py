@@ -14,12 +14,3 @@ def get_current_user_profile(
 ):
     """Returns the current user's profile."""
     return current_user
-
-@router.put("/me", response_model=UserResponse)
-def update_current_user(
-    request: UserUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Updates the current user's profile (name, etc)."""
-    return UserService.update_user(db, current_user, request)

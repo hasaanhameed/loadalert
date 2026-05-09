@@ -1,281 +1,55 @@
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { User, Shield, LogOut } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { updateUser, changePassword } from "@/services/users";
 
 const Profile = () => {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
 
-  // Profile info
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [loading, setLoading] = useState(false);
-  const [emailError, setEmailError] = useState("");
-
-  // Privacy & Security
-  const [showSecurity, setShowSecurity] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState("");
-
-  // Email validation
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  // Password validation
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 8 && /\d/.test(password);
-  };
-
-  const handleProfileUpdate = async () => {
-    setEmailError("");
-
-    // Validate email format
-    if (!validateEmail(email)) {
-      setEmailError("Please enter a valid email address (e.g., xyz@abc.com)");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const updatedUser = await updateUser({ name });
-      setUser(updatedUser);
-    } catch (err: any) {
-      alert(
-        err.response?.data?.detail || "Failed to update profile"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePasswordChange = async () => {
-    setPasswordError("");
-
-    // Frontend validation
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("All fields are required");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match");
-      return;
-    }
-
-    // Validate new password
-    if (!validatePassword(newPassword)) {
-      setPasswordError("Password must be at least 8 characters and contain at least one number");
-      return;
-    }
-
-    try {
-      setPasswordLoading(true);
-
-      await changePassword({
-        current_password: currentPassword,
-        new_password: newPassword,
-      });
-
-      // Reset state on success
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setShowSecurity(false);
-    } catch (err: any) {
-      const message =
-        err?.response?.data?.detail ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to update password";
-
-      setPasswordError(message);
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen bg-pure-snow pb-20">
       <Navbar />
 
-      <main className="pt-24 px-6">
+      <main className="pt-28 px-6">
         <div className="container mx-auto max-w-2xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">Profile</h1>
-            <p className="text-muted-foreground">Manage your account settings.</p>
+          <div className="mb-12">
+            <h1 className="text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic mb-2">Profile</h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-obsidian-blood/40">Account Details & Management</p>
           </div>
 
           {/* Profile Card */}
-          <div className="glass-card p-8 mb-6">
-            <div className="flex items-center gap-6 mb-8">
-              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center">
-                <User className="h-10 w-10 text-primary" />
+          <div className="bg-pure-snow border border-obsidian-blood/5 p-10 rounded-2xl shadow-sm mb-8">
+            <div className="flex flex-col items-center sm:flex-row sm:items-center gap-10">
+              <div className="w-24 h-24 rounded-full bg-fired-cream/10 border-2 border-fired-cream/20 flex items-center justify-center shadow-xl">
+                <User className="h-10 w-10 text-fired-cream" />
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">
+              <div className="text-center sm:text-left space-y-1">
+                <h2 className="text-3xl font-black text-obsidian-blood uppercase tracking-tight italic leading-none">
                   {user?.name}
                 </h2>
-                <p className="text-muted-foreground">{user?.email}</p>
+                <p className="text-sm font-black text-obsidian-blood/40 uppercase tracking-widest">{user?.email}</p>
               </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <Label>Full Name</Label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Email Address</Label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    // Clear error when user starts typing
-                    if (emailError) {
-                      setEmailError("");
-                    }
-                  }}
-                  className={emailError ? "border-destructive" : ""}
-                />
-                {emailError && (
-                  <p className="text-sm text-destructive">{emailError}</p>
-                )}
-              </div>
-
-              <Button
-                onClick={handleProfileUpdate}
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Save Changes"}
-              </Button>
             </div>
           </div>
 
-          {/* Settings */}
-          <div className="glass-card divide-y divide-border/50">
-            {/* Privacy & Security */}
-            <button
-              onClick={() => setShowSecurity((prev) => !prev)}
-              className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left group"
-            >
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Shield className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                  Privacy & Security
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Update password and security preferences
-                </p>
-              </div>
-            </button>
-
-            {/* Expandable Password Section */}
-            {showSecurity && (
-              <div className="px-6 pb-6">
-                <div className="glass-card p-6 mt-4">
-                  <h3 className="text-lg font-semibold text-foreground mb-4">
-                    Change Password
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Current Password</Label>
-                      <Input
-                        type="password"
-                        value={currentPassword}
-                        onChange={(e) => {
-                          setCurrentPassword(e.target.value);
-                          if (passwordError) {
-                            setPasswordError("");
-                          }
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <Label>New Password</Label>
-                      <Input
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => {
-                          setNewPassword(e.target.value);
-                          if (passwordError) {
-                            setPasswordError("");
-                          }
-                        }}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Must be at least 8 characters and contain at least one number
-                      </p>
-                    </div>
-
-                    <div>
-                      <Label>Confirm New Password</Label>
-                      <Input
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => {
-                          setConfirmPassword(e.target.value);
-                          if (passwordError) {
-                            setPasswordError("");
-                          }
-                        }}
-                      />
-                    </div>
-
-                    {passwordError && (
-                      <p className="text-sm text-destructive">
-                        {passwordError}
-                      </p>
-                    )}
-
-                    <Button
-                      disabled={passwordLoading}
-                      onClick={handlePasswordChange}
-                    >
-                      {passwordLoading
-                        ? "Updating..."
-                        : "Update Password"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Sign Out */}
+          {/* Actions */}
+          <div className="bg-pure-snow border border-obsidian-blood/5 rounded-2xl overflow-hidden shadow-sm">
             <button
               onClick={() => {
                 setUser(null);
                 navigate("/");
               }}
-              className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left group"
+              className="w-full p-8 flex items-center gap-6 hover:bg-obsidian-blood/5 transition-all text-left group border-l-4 border-l-transparent hover:border-l-red-500"
             >
-              <div className="p-2 rounded-lg bg-destructive/10">
-                <LogOut className="h-5 w-5 text-destructive" />
+              <div className="p-3 rounded-xl bg-red-500/5 group-hover:bg-red-500/10 transition-colors">
+                <LogOut className="h-6 w-6 text-red-500" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-destructive">Sign Out</p>
-                <p className="text-sm text-muted-foreground">
-                  Log out of your account
+                <p className="text-lg font-black text-red-500 uppercase tracking-tight italic">Sign Out</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40 group-hover:text-obsidian-blood/60">
+                  Securely log out of your account
                 </p>
               </div>
             </button>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Home, LayoutDashboard, Calendar, BarChart3, User, Menu, X } from "lucide-react";
+import { Activity, Home, LayoutDashboard, Calendar, BarChart3, User, Menu, X, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/context/UserContext";
 
@@ -12,10 +12,26 @@ const privateLinks = [
   { name: "Profile", path: "/profile", icon: User },
 ];
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
+
 export const Navbar = () => {
   const location = useLocation();
-  const { user } = useUser();
+  const navigate = useNavigate();
+  const { user, setUser } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    setUser(null);
+    navigate("/");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-obsidian-blood/5 bg-fired-cream transition-all duration-300">
@@ -53,9 +69,36 @@ export const Navbar = () => {
             {user ? (
               <div className="flex items-center gap-4 pl-6 border-l border-pure-snow/10">
                 <span className="text-xs font-black uppercase tracking-widest text-pure-snow hidden lg:block">{user.name}</span>
-                <div className="w-10 h-10 bg-pure-snow text-obsidian-blood rounded-full flex items-center justify-center shadow-xl border-2 border-pure-snow/20 transition-transform hover:scale-105 cursor-pointer">
-                  <User className="h-5 w-5" />
-                </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="w-10 h-10 bg-pure-snow text-obsidian-blood rounded-full flex items-center justify-center shadow-xl border-2 border-pure-snow/20 transition-transform hover:scale-105 cursor-pointer outline-none">
+                      <User className="h-5 w-5" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 bg-pure-snow border-obsidian-blood/5 rounded-xl shadow-2xl p-2 mt-2">
+                    <DropdownMenuLabel className="px-4 py-3">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40 mb-1">Account</p>
+                      <p className="text-xs font-black text-obsidian-blood truncate">{user.name}</p>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-obsidian-blood/5" />
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer focus:bg-obsidian-blood/5 focus:text-obsidian-blood transition-colors"
+                      onClick={() => navigate("/profile")}
+                    >
+                      <User className="h-4 w-4" />
+                      <span className="text-[11px] font-black uppercase tracking-widest">View Profile</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-obsidian-blood/5" />
+                    <DropdownMenuItem 
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer focus:bg-red-50 text-red-500 transition-colors"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span className="text-[11px] font-black uppercase tracking-widest">Sign Out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <Button
