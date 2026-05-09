@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/Navbar";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, Mail } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -31,6 +31,29 @@ const Profile = () => {
                 </h2>
                 <p className="text-sm font-black text-obsidian-blood/40 uppercase tracking-widest">{user?.email}</p>
               </div>
+            </div>
+          </div>
+
+          {/* Notification Sync Section */}
+          <div className="bg-pure-snow border border-obsidian-blood/5 rounded-2xl overflow-hidden shadow-sm mb-6">
+            <div className="p-8 border-b border-obsidian-blood/5 bg-fired-cream">
+              <h3 className="text-xs font-black text-pure-snow uppercase tracking-[0.2em]">Alert Preferences</h3>
+            </div>
+            
+            <div className="p-8 flex items-center justify-between gap-6 group hover:bg-obsidian-blood/[0.02] transition-all">
+              <div className="flex items-center gap-6">
+                <div className="p-3 rounded-xl bg-fired-cream/10 text-fired-cream group-hover:scale-110 transition-transform">
+                  <Mail className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-lg font-black text-obsidian-blood uppercase tracking-tight italic">Gmail Integration</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">Push notifications for LMS updates</p>
+                </div>
+              </div>
+              
+              <button className="h-10 px-8 rounded-lg bg-fired-cream text-obsidian-blood text-[10px] font-black uppercase tracking-widest hover:bg-fired-cream/80 transition-all shadow-lg active:scale-95">
+                Connect
+              </button>
             </div>
           </div>
 
