@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { StatsCard } from "@/components/StatsCard";
 import { WeeklyChart } from "@/components/WeeklyChart";
-import { Calendar, Clock, TrendingUp } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDashboardSummary, DashboardSummary } from "@/services/dashboard";
 import { useAuth } from "@/context/AuthContext";
@@ -32,15 +32,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-pure-snow">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-obsidian-blood/5 border-t-fired-cream rounded-full animate-spin"></div>
-          </div>
-          <div className="text-center">
-            <h2 className="text-xl font-black text-obsidian-blood uppercase italic tracking-tight">Pulse Loading</h2>
-            <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">Preparing workload summary...</p>
-          </div>
+      <div className="min-h-screen bg-pure-snow">
+        <Navbar />
+        <div className="flex items-center justify-center h-[80vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-obsidian-blood/20" />
         </div>
       </div>
     );
@@ -136,7 +131,7 @@ const Dashboard = () => {
             >
               <div className="flex flex-col gap-2">
                 <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
-                  Pulse Tracker
+                  My Deadlines
                 </h3>
                 <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
                   Manage personal academic deadlines

@@ -23,7 +23,8 @@ class DashboardService:
 
         deadlines = db.query(Deadline).filter(
             Deadline.user_id == current_user.id,
-            Deadline.due_date >= today
+            Deadline.due_date >= today,
+            Deadline.is_pinned == True
         ).all()
 
         # 1. Weekly Load (Next 7 days)
