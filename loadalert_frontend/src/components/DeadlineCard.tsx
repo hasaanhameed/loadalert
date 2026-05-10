@@ -13,6 +13,7 @@ interface DeadlineCardProps {
 
 export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: DeadlineCardProps) => {
   const [isToggling, setIsToggling] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const daysUntilDue = Math.ceil(
     (new Date(deadline.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
@@ -25,6 +26,16 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
       await onToggleMyDeadlines(String(deadline.id), !deadline.is_pinned);
     } finally {
       setIsToggling(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!onDelete) return;
+    setIsDeleting(true);
+    try {
+      await onDelete(String(deadline.id));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -111,10 +122,15 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onDelete?.(String(deadline.id))}
+            onClick={handleDelete}
+            disabled={isDeleting}
             className="h-10 w-10 text-obsidian-blood/30 hover:text-red-500 hover:bg-red-50 transition-colors"
           >
-            <Trash2 className="h-5 w-5" />
+            {isDeleting ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Trash2 className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
