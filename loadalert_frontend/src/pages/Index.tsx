@@ -1,30 +1,30 @@
 import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
-import { Activity, BarChart3, Calendar, Shield, Zap, ArrowRight } from "lucide-react";
+import { Activity, BarChart3, Calendar, Shield, Zap, ArrowRight, Bell, Globe, Layout } from "lucide-react";
 import { DnaHelix } from "@/components/DnaHelix";
 import { useUser } from "@/context/UserContext";
 
 const features = [
   {
-    icon: Calendar,
-    title: "LMS Auto-Sync",
-    description: "Connect your portal once. Auto-fetch all assignments and quizzes instantly.",
+    icon: Activity,
+    title: "LMS Pulse Sync",
+    description: "Directly synchronize your university LMS portal. One-click updates for all academic assignments.",
   },
   {
-    icon: BarChart3,
-    title: "Visual Load",
-    description: "See your weekly density at a glance with high-precision heatmaps.",
+    icon: Layout,
+    title: "Agenda View",
+    description: "A detailed daily breakdown of your academic load. Track exactly what's due and when with zero friction.",
   },
   {
-    icon: Shield,
-    title: "Stay Ahead",
-    description: "Get priority recommendations to tackle tasks efficiently.",
+    icon: Globe,
+    title: "Global Stream",
+    description: "Access a universal feed of deadlines. Discover and pin assignments to your personal workspace instantly.",
   },
   {
-    icon: Zap,
-    title: "Instant Insights",
-    description: "Visual breakdowns help you understand your weekly load.",
+    icon: Bell,
+    title: "Instant Alerts",
+    description: "Never miss a deadline again. Get high-precision Gmail notifications as your due dates approach.",
   },
 ];
 
@@ -48,23 +48,24 @@ const Index = () => {
 
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-20">
-            <div className="flex-1 text-center lg:text-left space-y-10 animate-fade-in">
+            <div className="flex-1 text-center lg:text-left space-y-8 animate-fade-in">
               <h1 className="text-7xl md:text-9xl font-black text-obsidian-blood tracking-tighter leading-[0.85] uppercase">
                 Nust <br />
                 Pulse.
               </h1>
 
               <p className="text-xl text-muted-foreground max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
-                Your University Life, <span className="text-obsidian-blood font-black">Synchronized.</span> The high-precision portal for NUST students to auto-sync LMS deadlines.
+                Your Academic Pulse, <span className="text-obsidian-blood font-black">Synchronized.</span> <br className="hidden md:block" />
+                The high-precision portal for NUST students to auto-sync LMS deadlines.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-6 pt-12">
-              <Button size="lg" className="h-14 px-10 text-xs font-black uppercase tracking-[0.2em] bg-fired-cream text-obsidian-blood border-0 shadow-lg hover:bg-fired-cream/80 hover:scale-105 active:scale-95 transition-all duration-300 group" asChild>
-                <Link to="/login" className="flex items-center gap-3">
-                  Plug Into LMS <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </div>
+              <div className="flex flex-col sm:flex-row gap-6 pt-4">
+                <Button size="lg" className="h-14 px-10 text-xs font-black uppercase tracking-[0.2em] bg-fired-cream text-obsidian-blood border-0 shadow-lg hover:bg-fired-cream/80 hover:scale-105 active:scale-95 transition-all duration-300 group" asChild>
+                  <Link to="/login" className="flex items-center gap-3">
+                    Plug Into LMS <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             {/* Spacer for the helix animation on large screens */}
@@ -93,8 +94,8 @@ const Index = () => {
                 key={feature.title}
                 className="group space-y-6 text-center lg:text-left"
               >
-                <div className="w-16 h-16 bg-ash-white flex items-center justify-center border border-obsidian-blood/10 transition-all duration-300 group-hover:bg-obsidian-blood group-hover:border-obsidian-blood rounded-xl">
-                  <feature.icon className="h-6 w-6 text-obsidian-blood transition-colors group-hover:text-ash-white" />
+                <div className="w-16 h-16 bg-ash-white flex items-center justify-center border border-obsidian-blood/10 transition-all duration-300 hover:bg-obsidian-blood hover:border-obsidian-blood rounded-xl group/icon mx-auto lg:mx-0 cursor-default">
+                  <feature.icon className="h-6 w-6 text-obsidian-blood transition-colors group-hover/icon:text-ash-white" />
                 </div>
                 <h3 className="text-lg font-black text-obsidian-blood uppercase tracking-tight">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed font-medium">{feature.description}</p>
