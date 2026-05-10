@@ -9,7 +9,7 @@ class Deadline(Base):
     title = Column(String, nullable=False)
     due_date = Column(DateTime, nullable=False)
     course_name = Column(String, nullable=True)
-    lms_event_id = Column(Integer, unique=True, nullable=True)
+    lms_event_id = Column(Integer, nullable=True)
     is_pinned = Column(Boolean, default=False)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
