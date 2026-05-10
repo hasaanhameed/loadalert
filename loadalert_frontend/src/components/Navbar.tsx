@@ -91,7 +91,7 @@ export const Navbar = () => {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-obsidian-blood/5" />
                     <DropdownMenuItem 
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer focus:bg-red-50 text-red-500 transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer focus:bg-red-50 text-red-500 focus:text-red-600 transition-colors"
                       onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4" />
