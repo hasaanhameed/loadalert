@@ -23,7 +23,7 @@ class DashboardService:
 
         deadlines = db.query(Deadline).filter(
             Deadline.user_id == current_user.id,
-            Deadline.due_date >= today,
+            func.date(Deadline.due_date) >= today,
             Deadline.is_pinned == True
         ).all()
 
@@ -38,8 +38,9 @@ class DashboardService:
             }
         
         for deadline in deadlines:
-            if today <= deadline.due_date <= today + timedelta(days=6):
-                bucket = weekly_map.get(deadline.due_date)
+            deadline_date = deadline.due_date.date()
+            if today <= deadline_date <= today + timedelta(days=6):
+                bucket = weekly_map.get(deadline_date)
                 if bucket:
                     bucket["deadlines"] += 1
 

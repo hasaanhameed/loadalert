@@ -54,7 +54,17 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
           <div className="flex flex-wrap items-center gap-5 text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
             <div className="flex items-center gap-2">
               <Calendar className="h-3.5 w-3.5" />
-              <span>{new Date(deadline.dueDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span>
+                {new Date(deadline.dueDate).toLocaleDateString(undefined, { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })} at {new Date(deadline.dueDate).toLocaleTimeString(undefined, { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </span>
             </div>
             
             {daysUntilDue <= 5 && daysUntilDue >= 0 && (

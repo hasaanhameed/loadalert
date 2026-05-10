@@ -69,11 +69,11 @@ export const AddDeadlineModal = ({
 
           <div className="space-y-2">
             <Label htmlFor="dueDate" className="text-sm font-medium text-foreground">
-              Due Date
+              Due Date & Time
             </Label>
             <Input
               id="dueDate"
-              type="date"
+              type="datetime-local"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               className="bg-muted/50 border-border/50 focus:border-primary"

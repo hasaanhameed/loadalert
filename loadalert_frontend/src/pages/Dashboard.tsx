@@ -84,12 +84,14 @@ const Dashboard = () => {
               />
             </div>
 
-            <div className="bg-pure-snow border border-obsidian-blood/5 p-8 rounded-2xl shadow-sm">
-              <h3 className="text-xs font-black text-obsidian-blood uppercase tracking-[0.2em] mb-8 pb-4 border-b border-obsidian-blood/5">
-                Module Distribution
-              </h3>
-
-              <div className="space-y-6">
+            <div className="bg-pure-snow border border-obsidian-blood/5 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
+              <div className="bg-fired-cream px-8 py-4 border-b border-obsidian-blood/5">
+                <h3 className="text-xs font-black text-pure-snow uppercase tracking-[0.2em]">
+                  Module Distribution
+                </h3>
+              </div>
+              
+              <div className="p-8 space-y-6 flex-1">
                 {summary?.course_summary && summary.course_summary.length > 0 ? (
                   summary.course_summary.map((course, index) => (
                     <div key={course.course_name} className="flex flex-col gap-2 group">

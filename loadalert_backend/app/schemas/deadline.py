@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import datetime
 from typing import Optional
 
 class DeadlineBase(BaseModel):
     title: str
-    due_date: date
+    due_date: datetime
     course_name: Optional[str] = None
     lms_event_id: Optional[int] = None
     estimated_effort: Optional[int] = None
@@ -23,7 +23,7 @@ class DeadlineResponse(DeadlineBase):
 
 class DeadlineUpdate(BaseModel):
     title: Optional[str] = None
-    due_date: Optional[date] = None
+    due_date: Optional[datetime] = None
     course_name: Optional[str] = None
     estimated_effort: Optional[int] = None
     importance_level: Optional[str] = None
