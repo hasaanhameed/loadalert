@@ -3,6 +3,7 @@ export interface WeeklyLoadDay {
   day: string;
   date: string;
   deadlines: number;
+  deadlines_list: Deadline[];
 }
 
 export interface CourseSummary {
@@ -25,7 +26,7 @@ export interface Deadline {
   courseName?: string | null;
   course_name?: string | null;
   estimatedHours?: number;
-  importance?: string;
+  importance?: "low" | "medium" | "high";
   lms_event_id?: number | null;
   is_pinned?: boolean;
 }

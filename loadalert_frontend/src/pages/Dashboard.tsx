@@ -3,8 +3,10 @@ import { StatsCard } from "@/components/StatsCard";
 import { WeeklyChart } from "@/components/WeeklyChart";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getDashboardSummary, DashboardSummary } from "@/services/dashboard";
+import { getDashboardSummary } from "@/services/dashboard";
+import { DashboardSummary } from "@/lib/types";
 import { useAuth } from "@/context/AuthContext";
+import { cn } from "@/lib/utils";
 
 import { Link } from "react-router-dom";
 
@@ -122,6 +124,62 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+          
+          {/* Agenda Section */}
+          <div className="mb-12">
+            <div className="bg-fired-cream px-8 py-4 rounded-t-2xl border-b border-obsidian-blood/5 flex items-center justify-between">
+              <h3 className="text-xs font-black text-pure-snow uppercase tracking-[0.2em]">
+                Agenda • Weekly Pulse
+              </h3>
+              <span className="text-[10px] font-black text-pure-snow/60 uppercase tracking-widest italic">
+                {summary?.upcoming_deadlines} Total Items
+              </span>
+            </div>
+            <div className="bg-pure-snow border-x border-b border-obsidian-blood/5 rounded-b-2xl p-4 grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+              {summary?.weekly_load.map((day) => (
+                <div key={day.date} className="bg-obsidian-blood/[0.02] border border-obsidian-blood/[0.03] rounded-xl p-4 hover:bg-obsidian-blood/[0.04] transition-all flex flex-col min-h-[160px]">
+                  <div className="flex flex-col gap-1 mb-4 pb-3 border-b border-obsidian-blood/5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-fired-cream italic">
+                      {day.day}
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/40">
+                      {new Date(day.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-4 flex-1">
+                    {day.deadlines_list && day.deadlines_list.length > 0 ? (
+                      day.deadlines_list.map((deadline) => (
+                        <div key={deadline.id} className="group cursor-default">
+                          <p className="text-[10px] font-black text-obsidian-blood/80 uppercase tracking-tight leading-tight mb-1 group-hover:text-fired-cream transition-colors">
+                            {deadline.title}
+                          </p>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-[8px] font-black uppercase tracking-[0.1em] text-fired-cream/70">
+                              {new Date(deadline.due_date).toLocaleTimeString(undefined, { 
+                                hour: '2-digit', 
+                                minute: '2-digit',
+                                hour12: true 
+                              })}
+                            </span>
+                            <span className="text-[7px] font-black uppercase tracking-widest text-obsidian-blood/20 truncate group-hover:text-obsidian-blood/40 transition-colors">
+                              {deadline.course_name || "General"}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="h-full flex items-center justify-center py-4">
+                        <span className="text-[8px] font-black uppercase tracking-widest text-obsidian-blood/10 italic">
+                          Clear
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
