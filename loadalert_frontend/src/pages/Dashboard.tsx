@@ -1,12 +1,13 @@
 import { Navbar } from "@/components/Navbar";
 import { StatsCard } from "@/components/StatsCard";
 import { WeeklyChart } from "@/components/WeeklyChart";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calendar, Clock, BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDashboardSummary } from "@/services/dashboard";
-import { DashboardSummary } from "@/lib/types";
+import { DashboardSummary, WeeklyLoadDay } from "@/lib/types";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import { Link } from "react-router-dom";
 
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDay, setSelectedDay] = useState<WeeklyLoadDay | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -133,14 +135,18 @@ const Dashboard = () => {
               <h3 className="text-xs font-black text-pure-snow uppercase tracking-[0.2em]">
                 Agenda • Weekly Pulse
               </h3>
-              <span className="text-[10px] font-black text-pure-snow/60 uppercase tracking-widest italic">
+              <span className="text-[10px] font-black text-pure-snow uppercase tracking-widest italic">
                 {summary?.upcoming_deadlines} Total Items
               </span>
             </div>
             <div className="bg-pure-snow border-x border-b border-obsidian-blood/5 rounded-b-2xl p-4 grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
               {summary?.weekly_load.map((day) => (
-                <div key={day.date} className="bg-obsidian-blood/[0.02] border border-obsidian-blood/[0.03] rounded-xl p-4 hover:bg-obsidian-blood/[0.04] transition-all flex flex-col min-h-[160px]">
-                  <div className="flex flex-col gap-1 mb-4 pb-3 border-b border-obsidian-blood/5">
+                <div 
+                  key={day.date} 
+                  onClick={() => setSelectedDay(day)}
+                  className="bg-obsidian-blood/[0.02] border border-obsidian-blood/[0.03] rounded-xl p-4 hover:bg-obsidian-blood/[0.04] hover:scale-[1.02] cursor-pointer transition-all flex flex-col min-h-[160px] group"
+                >
+                  <div className="flex flex-col gap-1 mb-4 pb-3 border-b border-obsidian-blood/5 group-hover:border-fired-cream/20 transition-colors">
                     <span className="text-[10px] font-black uppercase tracking-widest text-fired-cream italic">
                       {day.day}
                     </span>
@@ -164,7 +170,7 @@ const Dashboard = () => {
                                 hour12: true 
                               })}
                             </span>
-                            <span className="text-[7px] font-black uppercase tracking-widest text-obsidian-blood/20 truncate group-hover:text-obsidian-blood/40 transition-colors">
+                            <span className="text-[7px] font-black uppercase tracking-widest text-obsidian-blood/40 truncate group-hover:text-obsidian-blood/60 transition-colors">
                               {deadline.course_name || "General"}
                             </span>
                           </div>
@@ -215,6 +221,77 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      <Dialog open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
+        <DialogContent className="max-w-2xl bg-pure-snow border-obsidian-blood/10 p-0 overflow-hidden rounded-3xl shadow-2xl">
+          {selectedDay && (
+            <div className="flex flex-col">
+              <div className="bg-fired-cream p-8 text-pure-snow">
+                <div className="flex items-center gap-3 mb-2">
+                  <Calendar className="h-5 w-5 opacity-60" />
+                  <span className="text-xs font-black uppercase tracking-[0.2em]">Daily Agenda</span>
+                </div>
+                <h2 className="text-4xl font-black uppercase tracking-tighter italic">
+                  {selectedDay.day}, {new Date(selectedDay.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                </h2>
+              </div>
+
+              <div className="p-8 max-h-[60vh] overflow-y-auto scrollbar-none">
+                {selectedDay.deadlines_list.length > 0 ? (
+                  <div className="space-y-6">
+                    {selectedDay.deadlines_list.map((deadline) => (
+                      <div key={deadline.id} className="flex gap-6 items-start p-6 rounded-2xl bg-obsidian-blood/[0.02] border border-obsidian-blood/[0.03] hover:bg-obsidian-blood/[0.04] transition-all group">
+                        <div className="w-12 h-12 rounded-xl bg-fired-cream/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                          <BookOpen className="h-6 w-6 text-fired-cream" />
+                        </div>
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-start justify-between gap-4">
+                            <h3 className="text-lg font-black text-obsidian-blood uppercase tracking-tight italic leading-tight">
+                              {deadline.title}
+                            </h3>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-3.5 w-3.5 text-fired-cream" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60">
+                                {new Date(deadline.due_date).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-1 rounded-full bg-obsidian-blood/10" />
+                              <span className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/60">
+                                {deadline.course_name || "General Module"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-20 text-center">
+                    <div className="w-20 h-20 bg-obsidian-blood/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Calendar className="h-10 w-10 text-obsidian-blood/10" />
+                    </div>
+                    <p className="text-sm font-black uppercase tracking-[0.2em] text-obsidian-blood/20 italic">
+                      No Deadlines Scheduled for this Day
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-6 bg-obsidian-blood/[0.02] border-t border-obsidian-blood/5 flex justify-end">
+                <button 
+                  onClick={() => setSelectedDay(null)}
+                  className="px-8 py-3 bg-obsidian-blood text-pure-snow text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

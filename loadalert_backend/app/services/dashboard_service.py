@@ -34,7 +34,8 @@ class DashboardService:
             weekly_map[current_date] = {
                 "day": current_date.strftime("%a"),
                 "date": current_date,
-                "deadlines": 0
+                "deadlines": 0,
+                "deadlines_list": []
             }
         
         for deadline in deadlines:
@@ -43,6 +44,7 @@ class DashboardService:
                 bucket = weekly_map.get(deadline_date)
                 if bucket:
                     bucket["deadlines"] += 1
+                    bucket["deadlines_list"].append(deadline)
 
         weekly_load = [
             WeeklyLoadDay(**day)
