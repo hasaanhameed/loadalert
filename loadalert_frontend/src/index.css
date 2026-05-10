@@ -197,4 +197,14 @@
       opacity: 0; 
     }
   }
+
+  /* Prevent autofill from changing background color */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active  {
+      -webkit-box-shadow: 0 0 0 100px #E2B0A0 inset !important;
+      -webkit-text-fill-color: #1A0005 !important;
+      transition: background-color 5000s ease-in-out 0s;
+  }
 }

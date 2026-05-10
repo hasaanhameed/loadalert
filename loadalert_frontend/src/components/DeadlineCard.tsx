@@ -73,7 +73,7 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
                 daysUntilDue <= 2 ? "text-red-500" : "text-amber-500"
               )}>
                 <AlertTriangle className="h-3.5 w-3.5" />
-                <span>{daysUntilDue === 0 ? "Due today!" : `${daysUntilDue} days remaining`}</span>
+                <span>{daysUntilDue === 0 ? "Due today!" : `${daysUntilDue} day${daysUntilDue === 1 ? '' : 's'} remaining`}</span>
               </div>
             )}
           </div>

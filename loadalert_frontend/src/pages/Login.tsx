@@ -71,7 +71,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name.bscs23seecs"
-                className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood h-14 rounded-xl font-medium"
+                className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood focus:bg-fired-cream h-14 rounded-xl font-medium ring-offset-0 focus-visible:ring-0"
                 disabled={isLoading}
                 required
               />
@@ -88,7 +88,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your LMS password"
-                  className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood h-14 rounded-xl font-medium pr-12"
+                  className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood focus:bg-fired-cream h-14 rounded-xl font-medium pr-12 ring-offset-0 focus-visible:ring-0"
                   disabled={isLoading}
                   required
                 />
