@@ -9,9 +9,6 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str
     
-    # Redis
-    REDIS_URL: str
-    USE_REDIS: bool = True
     
     # Auth
     SECRET_KEY: str

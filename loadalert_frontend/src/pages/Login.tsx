@@ -122,7 +122,7 @@ const Login = () => {
 
           <div className="mt-12 pt-8 border-t border-obsidian-blood/5 text-center">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/30 leading-relaxed">
-              Authenticated via NUST Portal SSL
+              Authenticated via NUST LMS Portal
             </p>
           </div>
         </div>
