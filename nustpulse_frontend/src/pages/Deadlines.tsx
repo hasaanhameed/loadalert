@@ -4,7 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { DeadlineCard } from "@/components/DeadlineCard";
 import { Deadline } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Calendar, Filter, GraduationCap, Loader2 } from "lucide-react";
+import { Calendar, Filter, GraduationCap, Loader2, RefreshCcw } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -118,6 +118,25 @@ const Deadlines = () => {
                 {deadlines.length} Active Deadlines • Personal List
               </p>
             </div>
+            <Button
+              variant="default"
+              size="lg"
+              onClick={handleSync}
+              disabled={syncing}
+              className="h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
+            >
+              {syncing ? (
+                <>
+                  <RefreshCcw className="h-4 w-4 mr-3 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <RefreshCcw className="h-4 w-4 mr-3" />
+                  Update List
+                </>
+              )}
+            </Button>
           </div>
 
           {/* Subject Filter */}

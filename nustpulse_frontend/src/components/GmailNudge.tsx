@@ -93,7 +93,7 @@ const GmailNudge = () => {
           <Button
             onClick={handleDismiss}
             variant="outline"
-            className="flex-1 h-14 bg-pure-snow border-obsidian-blood/10 text-obsidian-blood/40 hover:text-obsidian-blood hover:bg-obsidian-blood/5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+            className="flex-1 h-14 bg-pure-snow border-obsidian-blood/20 text-obsidian-blood/60 hover:text-obsidian-blood hover:bg-obsidian-blood/5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
           >
             Maybe Later
           </Button>

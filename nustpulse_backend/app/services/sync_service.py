@@ -39,7 +39,7 @@ class SyncService:
             logger.info(f"Retrieved {len(events)} events from LMS for {user.lms_username}")
 
             # 4. Process events and upsert into database
-            synced = 0
+            synced_ids = []
             for event in events:
                 event_type = (event.get("eventtype") or "").lower()
                 if event_type not in DEADLINE_EVENT_TYPES:
@@ -53,6 +53,7 @@ class SyncService:
                 if not lms_event_id or not timestart:
                     continue
 
+                synced_ids.append(lms_event_id)
                 due_date = datetime.fromtimestamp(timestart)
 
                 existing = (
@@ -78,11 +79,25 @@ class SyncService:
                             user_id=user.id,
                         )
                     )
-                synced += 1
+
+            # 5. Pruning: Remove deadlines that are no longer in the LMS response
+            # (Only for deadlines that have an lms_event_id, to avoid deleting manual tasks)
+            prune_query = db.query(Deadline).filter(
+                Deadline.user_id == user.id,
+                Deadline.lms_event_id.isnot(None)
+            )
+            
+            if synced_ids:
+                prune_query = prune_query.filter(Deadline.lms_event_id.notin_(synced_ids))
+            
+            deleted_count = prune_query.delete(synchronize_session=False)
+            
+            if deleted_count > 0:
+                logger.info(f"Pruned {deleted_count} stale/submitted deadlines for {user.lms_username}")
 
             db.commit()
             logger.info(
-                f"Successfully synced {synced} deadline(s) for {user.lms_username}"
+                f"Successfully synced {len(synced_ids)} deadline(s) for {user.lms_username}"
             )
             return True
 
