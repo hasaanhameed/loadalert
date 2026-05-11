@@ -93,4 +93,4 @@ async def callback(
     db.commit()
 
     # Redirect back to the frontend profile page
-    return RedirectResponse(url="http://localhost:5173/profile?connected=true")
+    return RedirectResponse(url="http://localhost:8080/profile?connected=true")

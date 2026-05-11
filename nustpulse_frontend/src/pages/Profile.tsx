@@ -34,10 +34,10 @@ const Profile = () => {
 
   const handleConnectGoogle = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("access_token");
       if (!token) throw new Error("Not authenticated");
       
-      const res = await api.get(`/auth/google/authorize?token=${token}`);
+      const res = await api.get(`/api/auth/google/authorize?token=${token}`);
       if (res.data?.url) {
         window.location.href = res.data.url;
       }
@@ -112,13 +112,13 @@ const Profile = () => {
                 {user?.notification_email ? (
                   <div className="flex items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5">
                     <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                      <p className="font-bold text-obsidian-blood">{user.notification_email}</p>
+                      <div className="w-2 h-2 rounded-full bg-fired-cream animate-pulse shadow-[0_0_8px_rgba(230,168,142,0.5)]" />
+                      <p className="font-bold text-obsidian-blood italic">{user.notification_email}</p>
                     </div>
                     <button 
                       onClick={handleDisconnectGoogle}
                       disabled={saving}
-                      className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors"
+                      className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/30 hover:text-red-500 transition-colors"
                     >
                       Disconnect
                     </button>
@@ -126,9 +126,9 @@ const Profile = () => {
                 ) : (
                   <Button
                     onClick={handleConnectGoogle}
-                    className="w-full h-12 bg-white text-obsidian-blood border-2 border-obsidian-blood/10 font-bold rounded-xl hover:bg-obsidian-blood/[0.02] transition-all flex items-center justify-center gap-3"
+                    className="w-full h-16 bg-pure-snow text-obsidian-blood border border-obsidian-blood/10 rounded-xl text-[10px] font-black uppercase italic tracking-[0.2em] shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-4 group"
                   >
-                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
                     Connect with Gmail
                   </Button>
                 )}
@@ -136,7 +136,7 @@ const Profile = () => {
 
               {/* Toggle Setting - Only shown if connected */}
               {user?.notification_email && (
-                <div className="flex items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5">
+                <div className="flex items-center justify-between p-6 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5 shadow-inner">
                   <div className="flex items-center gap-4">
                     <div className={notifEnabled ? "text-fired-cream" : "text-obsidian-blood/20"}>
                       {notifEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
@@ -145,41 +145,25 @@ const Profile = () => {
                       <p className="text-sm font-black text-obsidian-blood uppercase tracking-tight italic">
                         {notifEnabled ? "Notifications Enabled" : "Notifications Disabled"}
                       </p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/30 mt-0.5">
+                        {notifEnabled ? "You are receiving real-time alerts" : "Alerts are currently paused"}
+                      </p>
                     </div>
                   </div>
                   <button 
                     onClick={() => {
                       const newVal = !notifEnabled;
                       setNotifEnabled(newVal);
-                      // Proactively save this toggle
                       updateUser({ notifications_enabled: newVal })
                         .then(updated => setUser(updated))
                         .catch(() => toast.error("Failed to update notification status"));
                     }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${notifEnabled ? 'bg-fired-cream' : 'bg-obsidian-blood/10'}`}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none shadow-sm ${notifEnabled ? 'bg-fired-cream' : 'bg-obsidian-blood/10'}`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${notifEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
                 </div>
               )}
-              {/* Save Button */}
-              <Button
-                onClick={handleUpdateProfile}
-                disabled={saving}
-                className="w-full h-14 bg-fired-cream text-obsidian-blood font-black uppercase tracking-[0.2em] rounded-xl shadow-lg hover:bg-fired-cream/80 transition-all active:scale-95"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving Changes...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Settings
-                  </>
-                )}
-              </Button>
             </div>
           </div>
 
