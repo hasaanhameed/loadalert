@@ -8,7 +8,7 @@ from app.core.oauth2 import get_current_user
 from app.models.user import User
 from app.core.security import verify_token
 
-router = APIRouter(prefix="/auth/google", tags=["Google OAuth"])
+router = APIRouter(prefix="/api/auth/google", tags=["Google OAuth"])
 
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"

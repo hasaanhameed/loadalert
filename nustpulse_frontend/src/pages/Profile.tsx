@@ -134,32 +134,34 @@ const Profile = () => {
                 )}
               </div>
 
-              {/* Toggle Setting */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5">
-                <div className="flex items-center gap-4">
-                  <div className={notifEnabled ? "text-green-600" : "text-obsidian-blood/20"}>
-                    {notifEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
+              {/* Toggle Setting - Only shown if connected */}
+              {user?.notification_email && (
+                <div className="flex items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5">
+                  <div className="flex items-center gap-4">
+                    <div className={notifEnabled ? "text-fired-cream" : "text-obsidian-blood/20"}>
+                      {notifEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-obsidian-blood uppercase tracking-tight italic">
+                        {notifEnabled ? "Notifications Enabled" : "Notifications Disabled"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-black text-obsidian-blood uppercase tracking-tight italic">
-                      {notifEnabled ? "Notifications Enabled" : "Notifications Disabled"}
-                    </p>
-                  </div>
+                  <button 
+                    onClick={() => {
+                      const newVal = !notifEnabled;
+                      setNotifEnabled(newVal);
+                      // Proactively save this toggle
+                      updateUser({ notifications_enabled: newVal })
+                        .then(updated => setUser(updated))
+                        .catch(() => toast.error("Failed to update notification status"));
+                    }}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${notifEnabled ? 'bg-fired-cream' : 'bg-obsidian-blood/10'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
                 </div>
-                <button 
-                  onClick={() => {
-                    const newVal = !notifEnabled;
-                    setNotifEnabled(newVal);
-                    // Proactively save this toggle
-                    updateUser({ notifications_enabled: newVal })
-                      .then(updated => setUser(updated))
-                      .catch(() => toast.error("Failed to update notification status"));
-                  }}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${notifEnabled ? 'bg-green-600' : 'bg-obsidian-blood/10'}`}
-                >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${notifEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
-                </button>
-              </div>
+              )}
               {/* Save Button */}
               <Button
                 onClick={handleUpdateProfile}
