@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from app.database.database import Base
 
@@ -9,5 +9,9 @@ class User(Base):
     name = Column(String, nullable=False)
     lms_username = Column(String, unique=True, nullable=False)
     lms_password = Column(String, nullable=False)
+    
+    # Notification Settings
+    notification_email = Column(String, nullable=True)
+    notifications_enabled = Column(Boolean, default=True)
 
     deadlines = relationship("Deadline", back_populates="user", cascade="all, delete")

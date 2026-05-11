@@ -11,6 +11,10 @@ class Deadline(Base):
     course_name = Column(String, nullable=True)
     lms_event_id = Column(Integer, nullable=True)
     is_pinned = Column(Boolean, default=False)
+    
+    # Notification tracking
+    notified_new = Column(Boolean, default=False)
+    last_reminder_sent_at = Column(DateTime, nullable=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 

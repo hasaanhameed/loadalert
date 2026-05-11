@@ -11,4 +11,7 @@ python-multipart
 passlib[bcrypt]
 httpx 
 beautifulsoup4 
-cryptography 
+cryptography
+celery
+redis
+fastapi-mail

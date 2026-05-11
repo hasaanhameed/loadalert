@@ -13,22 +13,57 @@ services:
 
   backend:
     build:
-      context: ./loadalert_backend
+      context: ./nustpulse_backend
       dockerfile: ./docker/Dockerfile
     container_name: loadalert-backend
     env_file:
-      - ./loadalert_backend/.env
+      - ./nustpulse_backend/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
     # No ports exposed directly, handled by Nginx
     restart: unless-stopped
 
   frontend:
     build:
-      context: ./loadalert_frontend
+      context: ./nustpulse_frontend
       dockerfile: ./docker/Dockerfile
     container_name: loadalert-frontend
     env_file:
-      - ./loadalert_frontend/.env
+      - ./nustpulse_frontend/.env
     # No ports exposed directly, handled by Nginx
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: loadalert-redis
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./nustpulse_backend
+      dockerfile: ./docker/Dockerfile
+    container_name: loadalert-worker
+    command: celery -A app.core.celery_app worker --loglevel=info
+    env_file:
+      - ./nustpulse_backend/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  beat:
+    build:
+      context: ./nustpulse_backend
+      dockerfile: ./docker/Dockerfile
+    container_name: loadalert-beat
+    command: celery -A app.core.celery_app beat --loglevel=info
+    env_file:
+      - ./nustpulse_backend/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
     restart: unless-stopped
 
 # Volumes for persistent data if any (not needed for Supabase)

@@ -1,16 +1,20 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.deadline import Deadline
-from app.cache.cache_invalidation import invalidate_user_dashboard_cache
+
 
 class DeadlineService:
     @staticmethod
     def create_deadline(db: Session, current_user, deadline_data):
-        new_deadline = Deadline(**deadline_data.model_dump(), user_id=current_user.id)
+        new_deadline = Deadline(
+            **deadline_data.model_dump(), 
+            user_id=current_user.id,
+            notified_new=True # No need to notify for manual creation
+        )
         db.add(new_deadline)
         db.commit()
         db.refresh(new_deadline)
-        invalidate_user_dashboard_cache(current_user.id)
+
         return new_deadline
 
     @staticmethod
@@ -33,7 +37,7 @@ class DeadlineService:
 
         db.commit()
         db.refresh(deadline)
-        invalidate_user_dashboard_cache(current_user.id)
+
         return deadline
 
     @staticmethod
@@ -48,7 +52,7 @@ class DeadlineService:
 
         db.delete(deadline)
         db.commit()
-        invalidate_user_dashboard_cache(current_user.id)
+
         return None
     @staticmethod
     def toggle_deadline_pin(db: Session, current_user, deadline_id: int, is_pinned: bool):
@@ -63,5 +67,5 @@ class DeadlineService:
         deadline.is_pinned = is_pinned
         db.commit()
         db.refresh(deadline)
-        invalidate_user_dashboard_cache(current_user.id)
+
         return deadline

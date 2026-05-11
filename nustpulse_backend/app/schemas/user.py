@@ -10,9 +10,13 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     id: int
+    notification_email: Optional[str] = None
+    notifications_enabled: bool
 
     class Config:
         from_attributes = True
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
+    notification_email: Optional[str] = None
+    notifications_enabled: Optional[bool] = None

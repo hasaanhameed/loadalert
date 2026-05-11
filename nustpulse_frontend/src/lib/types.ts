@@ -44,12 +44,16 @@ export interface UpdateDeadlineInput extends Partial<CreateDeadlineInput> {}
 export interface User {
   id: number;
   name: string;
-  email?: string; // Added back to resolve UserContext errors
+  email?: string; // This was lms_username in backend but mapped to email here
   lms_username: string;
+  notification_email?: string | null;
+  notifications_enabled: boolean;
 }
 
 export interface UserUpdateInput {
-  name: string;
+  name?: string;
+  notification_email?: string;
+  notifications_enabled?: boolean;
 }
 
 export interface AuthResponse {
