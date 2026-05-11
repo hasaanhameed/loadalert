@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.core.oauth2 import get_current_user
 from app.services.user_service import UserService
+from app.services.notification_service import NotificationService
 from app.schemas.user import UserResponse, UserUpdate
 from app.models.user import User
 

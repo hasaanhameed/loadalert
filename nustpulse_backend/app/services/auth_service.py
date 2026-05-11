@@ -10,9 +10,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+from app.database.database import SessionLocal
+
 class AuthService:
     @staticmethod
-    async def login(db: Session, request):
+    async def login(db: Session, request, background_tasks):
         # 1. Open a fresh LMS session and authenticate
         lms = LMSSession()
         try:
@@ -52,8 +54,8 @@ class AuthService:
         finally:
             await lms.close()
 
-        # 4. Trigger an initial sync of deadlines (opens its own fresh session)
-        await SyncService.sync_user_deadlines(db, user, request.password)
+        # 4. Trigger sync in the background so login is instant
+        background_tasks.add_task(AuthService._background_sync, user.id, request.password)
 
         # 5. Generate our App Session Token (JWT)
         access_token = create_access_token(data={"sub": user.lms_username})
@@ -63,3 +65,14 @@ class AuthService:
             "token_type": "bearer",
             "user": user,
         }
+
+    @staticmethod
+    async def _background_sync(user_id: int, password: str):
+        """Helper to run sync with a fresh DB session in the background."""
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            if user:
+                await SyncService.sync_user_deadlines(db, user, password)
+        finally:
+            db.close()

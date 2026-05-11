@@ -14,3 +14,11 @@ export const loginUser = async (email: string, password: string): Promise<AuthRe
 };
 
 // Signup is removed as users are auto-created via login
+
+/**
+ * GOOGLE OAUTH
+ */
+export const googleAuthorize = async (token: string): Promise<{ url: string }> => {
+  const res = await api.get<{ url: string }>(`/api/auth/google/authorize?token=${token}`);
+  return res.data;
+};

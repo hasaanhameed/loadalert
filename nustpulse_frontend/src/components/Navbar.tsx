@@ -30,6 +30,7 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     setUser(null);
+    sessionStorage.removeItem("gmail_nudge_seen");
     navigate("/");
   };
 

@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { loginUser, signupUser } from "@/services/auth";
+import { loginUser, googleAuthorize } from "@/services/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -19,20 +19,21 @@ export const useAuth = () => {
     },
   });
 
-  const signupMutation = useMutation({
-    mutationFn: ({ name, email, password }: any) =>
-      signupUser(name, email, password),
-    onSuccess: () => {
-      toast.success("Signup successful! Please login.");
-      navigate("/login");
+  const googleAuthMutation = useMutation({
+    mutationFn: (token: string) => googleAuthorize(token),
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || "Signup failed");
+    onError: () => {
+      toast.error("Failed to connect Google account");
     },
   });
 
   const logout = () => {
     localStorage.removeItem("access_token");
+    sessionStorage.removeItem("gmail_nudge_seen");
     navigate("/login");
     toast.success("Logged out successfully");
   };
@@ -40,8 +41,8 @@ export const useAuth = () => {
   return {
     login: loginMutation.mutate,
     isLoggingIn: loginMutation.isPending,
-    signup: signupMutation.mutate,
-    isSigningUp: signupMutation.isPending,
+    connectGoogle: googleAuthMutation.mutate,
+    isConnectingGoogle: googleAuthMutation.isPending,
     logout,
   };
 };

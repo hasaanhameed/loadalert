@@ -88,8 +88,9 @@ async def callback(
     if not google_email:
         raise HTTPException(status_code=400, detail="Could not retrieve email from Google")
 
-    # 4. Update user notification email
+    # 4. Update user notification email and enable alerts
     user.notification_email = google_email
+    user.notifications_enabled = True
     db.commit()
 
     # Redirect back to the frontend profile page

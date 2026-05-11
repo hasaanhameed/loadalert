@@ -1,66 +1,67 @@
 import { Navbar } from "@/components/Navbar";
-import { User, LogOut, Mail, Bell, BellOff, Save, Loader2 } from "lucide-react";
+import { User, LogOut, Mail, Bell, BellOff, Loader2 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { updateUser } from "@/services/users";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
+import { useUsers } from "@/hooks/useUsers";
+import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 
 const Profile = () => {
   const { user, setUser } = useUser();
-  const navigate = useNavigate();
-  
+  const { updateProfile, isUpdatingProfile } = useUsers();
+  const { connectGoogle, logout } = useAuth();
+
   const [notifEnabled, setNotifEnabled] = useState(user?.notifications_enabled ?? true);
-  const [saving, setSaving] = useState(false);
 
-  const handleUpdateProfile = async () => {
-    try {
-      setSaving(true);
-      const updatedUser = await updateUser({
-        notifications_enabled: notifEnabled
-      });
-      setUser(updatedUser);
-      toast.success("Notification preferences updated");
-    } catch (err) {
-      console.error("Failed to update profile", err);
-      toast.error("Failed to update settings");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleConnectGoogle = async () => {
-    try {
-      const token = localStorage.getItem("access_token");
-      if (!token) throw new Error("Not authenticated");
-      
-      const res = await api.get(`/api/auth/google/authorize?token=${token}`);
-      if (res.data?.url) {
-        window.location.href = res.data.url;
+  // Refresh user data on mount to get latest connection status
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/users/me");
+        setUser(res.data);
+      } catch (err) {
+        console.error("Failed to refresh user", err);
       }
-    } catch (err) {
-      console.error("Failed to start Google OAuth", err);
-      toast.error("Failed to connect Google account");
+    };
+    fetchUser();
+  }, []);
+
+  // Update local toggle state when user data changes
+  useEffect(() => {
+    if (user) {
+      setNotifEnabled(user.notifications_enabled);
+    }
+  }, [user]);
+
+  const handleConnectGoogle = () => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      connectGoogle(token);
     }
   };
 
-  const handleDisconnectGoogle = async () => {
-    try {
-      setSaving(true);
-      const updatedUser = await updateUser({
-        notification_email: null
-      });
-      setUser(updatedUser);
-      toast.success("Google account disconnected");
-    } catch (err) {
-      console.error("Failed to disconnect", err);
-      toast.error("Failed to disconnect account");
-    } finally {
-      setSaving(false);
-    }
+  const handleDisconnectGoogle = () => {
+    updateProfile({
+      notification_email: null,
+      notifications_enabled: false
+    }, {
+      onSuccess: (data) => {
+        setUser(data);
+      }
+    });
+  };
+
+  const handleToggleNotifications = () => {
+    const newVal = !notifEnabled;
+    setNotifEnabled(newVal);
+    updateProfile({
+      notifications_enabled: newVal
+    }, {
+      onSuccess: (data) => {
+        setUser(data);
+      }
+    });
   };
 
   return (
@@ -117,7 +118,7 @@ const Profile = () => {
                     </div>
                     <button 
                       onClick={handleDisconnectGoogle}
-                      disabled={saving}
+                      disabled={isUpdatingProfile}
                       className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/30 hover:text-red-500 transition-colors"
                     >
                       Disconnect
@@ -126,41 +127,45 @@ const Profile = () => {
                 ) : (
                   <Button
                     onClick={handleConnectGoogle}
-                    className="w-full h-16 bg-pure-snow text-obsidian-blood border border-obsidian-blood/10 rounded-xl text-[10px] font-black uppercase italic tracking-[0.2em] shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-4 group"
+                    className="w-full h-14 bg-pure-snow border-2 border-obsidian-blood/5 text-obsidian-blood font-black uppercase italic tracking-[0.2em] rounded-xl shadow-sm hover:border-fired-cream/50 hover:bg-fired-cream/5 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-3"
                   >
-                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+                    <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
                     Connect with Gmail
                   </Button>
                 )}
               </div>
 
-              {/* Toggle Setting - Only shown if connected */}
+              {/* Notification Toggle - Only visible when connected */}
               {user?.notification_email && (
-                <div className="flex items-center justify-between p-6 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5 shadow-inner">
+                <div className="pt-8 border-t border-obsidian-blood/5 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={notifEnabled ? "text-fired-cream" : "text-obsidian-blood/20"}>
+                    <div className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      notifEnabled ? "bg-fired-cream/10 text-fired-cream" : "bg-obsidian-blood/5 text-obsidian-blood/40"
+                    )}>
                       {notifEnabled ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-obsidian-blood uppercase tracking-tight italic">
-                        {notifEnabled ? "Notifications Enabled" : "Notifications Disabled"}
-                      </p>
-                      <p className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/30 mt-0.5">
+                      <p className="text-sm font-black text-obsidian-blood uppercase tracking-tight italic">Notifications Enabled</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
                         {notifEnabled ? "You are receiving real-time alerts" : "Alerts are currently paused"}
                       </p>
                     </div>
                   </div>
                   <button 
-                    onClick={() => {
-                      const newVal = !notifEnabled;
-                      setNotifEnabled(newVal);
-                      updateUser({ notifications_enabled: newVal })
-                        .then(updated => setUser(updated))
-                        .catch(() => toast.error("Failed to update notification status"));
-                    }}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 focus:outline-none shadow-sm ${notifEnabled ? 'bg-fired-cream' : 'bg-obsidian-blood/10'}`}
+                    onClick={handleToggleNotifications}
+                    disabled={isUpdatingProfile}
+                    className={cn(
+                      "w-14 h-8 rounded-full p-1 transition-all duration-300 relative",
+                      notifEnabled ? "bg-fired-cream" : "bg-obsidian-blood/10"
+                    )}
                   >
-                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${notifEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                    <div className={cn(
+                      "w-6 h-6 bg-pure-snow rounded-full shadow-lg transition-all duration-300 flex items-center justify-center",
+                      notifEnabled ? "ml-6" : "ml-0"
+                    )}>
+                      {isUpdatingProfile && <Loader2 className="h-3 w-3 animate-spin text-fired-cream" />}
+                    </div>
                   </button>
                 </div>
               )}
@@ -170,10 +175,7 @@ const Profile = () => {
           {/* Actions */}
           <div className="bg-pure-snow border border-obsidian-blood/5 rounded-2xl overflow-hidden shadow-sm">
             <button
-              onClick={() => {
-                setUser(null);
-                navigate("/");
-              }}
+              onClick={logout}
               className="w-full p-8 flex items-center gap-6 hover:bg-obsidian-blood/5 transition-all text-left group border-l-4 border-l-transparent hover:border-l-red-500"
             >
               <div className="p-3 rounded-xl bg-red-500/5 group-hover:bg-red-500/10 transition-colors">
@@ -194,3 +196,7 @@ const Profile = () => {
 };
 
 export default Profile;
+
+function cn(...classes: any[]) {
+  return classes.filter(Boolean).join(" ");
+}

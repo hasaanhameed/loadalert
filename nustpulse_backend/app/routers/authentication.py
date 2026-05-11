@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.services.auth_service import AuthService
@@ -9,6 +9,7 @@ router = APIRouter(tags=['Authentication'])
 @router.post('/login', response_model=LoginResponse)
 async def login(
     request: LMSLoginRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    return await AuthService.login(db, request)
+    return await AuthService.login(db, request, background_tasks)

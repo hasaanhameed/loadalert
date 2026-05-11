@@ -16,6 +16,8 @@ import UniversalPulse from "./pages/UniversalPulse";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
+import GmailNudge from "./components/GmailNudge";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -26,6 +28,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <GmailNudge />
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
