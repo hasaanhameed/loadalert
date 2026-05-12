@@ -1,4 +1,3 @@
-
 from app.core.config import settings
 from celery.schedules import crontab
 from celery import Celery
@@ -17,7 +16,7 @@ celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
-    timezone="UTC",
+    timezone="Asia/Karachi",
     enable_utc=True,
 )
 
@@ -29,8 +28,8 @@ celery_app.conf.beat_schedule = {
         "task": "sync_all_users",
         "schedule": crontab(minute=0, hour="*/4"),
     },
-    "daily-reminders-at-9am": {
+    "daily-reminders-at-10pm": {
         "task": "daily_reminder_check",
-        "schedule": crontab(minute=0, hour=9),
+        "schedule": crontab(minute=0, hour=22),
     },
 }
