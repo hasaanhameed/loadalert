@@ -79,22 +79,22 @@ const Profile = () => {
       <main className="pt-28 px-6">
         <div className="container mx-auto max-w-2xl">
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic mb-2">Profile</h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-obsidian-blood/40">Account Details & Management</p>
+          <div className="mb-8 md:mb-12 text-center sm:text-left">
+            <h1 className="text-3xl md:text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic mb-2">Profile</h1>
+            <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-obsidian-blood/40">Account Details & Management</p>
           </div>
 
           {/* Profile Card */}
-          <div className="bg-pure-snow border border-obsidian-blood/5 p-10 rounded-2xl shadow-sm mb-8">
-            <div className="flex flex-col items-center sm:flex-row sm:items-center gap-10">
-              <div className="w-24 h-24 rounded-full bg-fired-cream/10 border-2 border-fired-cream/20 flex items-center justify-center shadow-xl">
-                <User className="h-10 w-10 text-fired-cream" />
+          <div className="bg-pure-snow border border-obsidian-blood/5 p-6 md:p-10 rounded-2xl shadow-sm mb-8">
+            <div className="flex flex-col items-center sm:flex-row gap-6 md:gap-10">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-fired-cream/10 border-2 border-fired-cream/20 flex items-center justify-center shadow-xl">
+                <User className="h-8 w-8 md:h-10 md:w-10 text-fired-cream" />
               </div>
               <div className="text-center sm:text-left space-y-1">
-                <h2 className="text-3xl font-black text-obsidian-blood uppercase tracking-tight italic leading-none">
+                <h2 className="text-2xl md:text-3xl font-black text-obsidian-blood uppercase tracking-tight italic leading-none">
                   {user?.name}
                 </h2>
-                <p className="text-sm font-black text-obsidian-blood/40 uppercase tracking-widest">{user?.lms_username}</p>
+                <p className="text-xs md:text-sm font-black text-obsidian-blood/40 uppercase tracking-widest">{user?.lms_username}</p>
               </div>
             </div>
           </div>
@@ -119,15 +119,15 @@ const Profile = () => {
                 </div>
                 
                 {user?.notification_email ? (
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-fired-cream animate-pulse shadow-[0_0_8px_rgba(230,168,142,0.5)]" />
-                      <p className="font-bold text-obsidian-blood italic">{user.notification_email}</p>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5 gap-4">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-2 h-2 rounded-full bg-fired-cream animate-pulse shadow-[0_0_8px_rgba(230,168,142,0.5)] shrink-0" />
+                      <p className="font-bold text-obsidian-blood italic break-all text-xs md:text-sm">{user.notification_email}</p>
                     </div>
                     <button 
                       onClick={handleDisconnectGoogle}
                       disabled={isUpdatingProfile}
-                      className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/30 hover:text-red-500 transition-colors"
+                      className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-obsidian-blood/30 hover:text-red-500 transition-colors"
                     >
                       Disconnect
                     </button>
