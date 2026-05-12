@@ -12,6 +12,6 @@ class User(Base):
     
     # Notification Settings
     notification_email = Column(String, nullable=True)
-    notifications_enabled = Column(Boolean, default=True)
+    notifications_enabled = Column(Boolean, default=False)
 
     deadlines = relationship("Deadline", back_populates="user", cascade="all, delete")
