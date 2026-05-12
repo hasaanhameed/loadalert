@@ -15,6 +15,9 @@ from app.database.database import SessionLocal
 class AuthService:
     @staticmethod
     async def login(db: Session, request, background_tasks):
+        # Normalize email/username
+        request.email = request.email.strip().lower()
+
         # 1. Open a fresh LMS session and authenticate
         lms = LMSSession()
         try:
