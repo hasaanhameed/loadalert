@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Eye, EyeOff, Loader2, Fingerprint, Lock, School } from "lucide-react";
+import { toast } from "sonner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ const Login = () => {
       navigate("/deadlines");
     } catch (error) {
       console.error(error);
-      alert("Verification failed. Please check your LMS credentials.");
+      toast.error("Verification failed. Please check your LMS credentials.");
     } finally {
       setIsLoading(false);
     }

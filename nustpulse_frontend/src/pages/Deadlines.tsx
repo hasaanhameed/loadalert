@@ -198,7 +198,7 @@ const Deadlines = () => {
                   No Personal Deadlines
                 </h3>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40 max-w-xs mx-auto leading-relaxed">
-                  Your personal list is empty. Add manual tasks or browse the <Link to="/universal-pulse" className="text-obsidian-blood underline">Global Feed</Link> to add deadlines.
+                  Your personal list is empty. Sync your LMS and browse the <Link to="/universal-pulse" className="text-obsidian-blood underline">Global Feed</Link> to add deadlines.
                 </p>
               </div>
             )}
