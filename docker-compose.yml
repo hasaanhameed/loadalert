@@ -5,9 +5,10 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nustpulse_frontend/docker/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - backend
+      - frontend
     networks:
       - nustpulse-network
 
@@ -16,6 +17,8 @@ services:
       context: ./nustpulse_backend
       dockerfile: docker/Dockerfile
     container_name: nustpulse-backend
+    environment:
+      - REDIS_URL=redis://nustpulse-redis:6379/0
     env_file:
       - ./nustpulse_backend/.env
     depends_on:
@@ -27,6 +30,8 @@ services:
     build:
       context: ./nustpulse_frontend
       dockerfile: docker/Dockerfile
+      args:
+        - VITE_API_URL=/api
     container_name: nustpulse-frontend
     networks:
       - nustpulse-network
@@ -43,6 +48,8 @@ services:
       dockerfile: docker/Dockerfile
     container_name: nustpulse-worker
     command: celery -A app.core.celery_app worker --loglevel=info
+    environment:
+      - REDIS_URL=redis://nustpulse-redis:6379/0
     env_file:
       - ./nustpulse_backend/.env
     depends_on:
@@ -56,12 +63,15 @@ services:
       dockerfile: docker/Dockerfile
     container_name: nustpulse-beat
     command: celery -A app.core.celery_app beat --loglevel=info
+    environment:
+      - REDIS_URL=redis://nustpulse-redis:6379/0
     env_file:
       - ./nustpulse_backend/.env
-    environment:
-      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - redis
-    restart: unless-stopped
+    networks:
+      - nustpulse-network
 
-# Volumes for persistent data if any (not needed for Supabase)
+networks:
+  nustpulse-network:
+    driver: bridge

@@ -6,6 +6,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+# Pass the API URL at build time
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY . .
 RUN npm run build
 
@@ -13,8 +17,8 @@ RUN npm run build
 FROM nginx:stable-alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
-# Note: nginx.conf will be copied from the root in docker-compose or here if we prefer.
-# We will copy a custom nginx config for the frontend.
+
+# Custom nginx config for the frontend service
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
