@@ -42,11 +42,11 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
   return (
     <div
       className={cn(
-        "bg-pure-snow border border-obsidian-blood/5 p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group rounded-xl",
+        "bg-pure-snow border border-obsidian-blood/5 p-5 md:p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group rounded-xl",
         deadline.is_pinned && "border-l-4 border-l-fired-cream"
       )}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-start justify-between gap-6">
         <div className="flex-1 space-y-4">
           <div className="space-y-1">
              <div className="flex items-center gap-2 mb-1">
@@ -59,7 +59,7 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
                  </span>
                )}
              </div>
-            <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic">{deadline.title}</h3>
+            <h3 className="text-lg md:text-xl font-black text-obsidian-blood uppercase tracking-tight italic leading-tight">{deadline.title}</h3>
           </div>
 
           <div className="flex flex-wrap items-center gap-5 text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
@@ -90,7 +90,7 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
           </div>
         </div>
 
-        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="flex items-center gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-obsidian-blood/5 justify-end">
           {deadline.lms_event_id && onToggleMyDeadlines && (
             <Button
               variant="link"
@@ -101,7 +101,7 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
                 "h-auto p-0 flex items-center gap-2 transition-all font-black uppercase text-[9px] tracking-widest hover:no-underline",
                 deadline.is_pinned 
                   ? "text-primary hover:text-fired-cream" 
-                  : "text-obsidian-blood/30 hover:text-obsidian-blood"
+                  : "text-obsidian-blood/40 hover:text-obsidian-blood"
               )}
             >
               {isToggling ? (
@@ -109,12 +109,14 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
               ) : deadline.is_pinned ? (
                 <>
                   <X className="h-4 w-4" />
-                  <span>Remove from My Deadlines</span>
+                  <span className="hidden xs:inline">Remove from My Deadlines</span>
+                  <span className="xs:hidden">Remove</span>
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4" />
-                  <span>Add to My List</span>
+                  <span className="hidden xs:inline">Add to My List</span>
+                  <span className="xs:hidden">Add</span>
                 </>
               )}
             </Button>
@@ -124,7 +126,7 @@ export const DeadlineCard = ({ deadline, onDelete, onToggleMyDeadlines }: Deadli
             size="icon"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="h-10 w-10 text-obsidian-blood/30 hover:text-red-500 hover:bg-red-50 transition-colors"
+            className="h-10 w-10 text-obsidian-blood/30 hover:text-red-500 hover:bg-red-50 transition-colors ml-auto md:ml-0"
           >
             {isDeleting ? (
               <Loader2 className="h-5 w-5 animate-spin" />

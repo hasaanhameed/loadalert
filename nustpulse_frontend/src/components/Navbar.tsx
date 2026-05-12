@@ -39,7 +39,7 @@ export const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex h-20 items-center justify-between">
           <Link to={user ? "/dashboard" : "/"} className="flex items-center group">
-            <span className="text-2xl font-black text-pure-snow tracking-tighter uppercase italic">NustPulse</span>
+            <span className="text-xl md:text-2xl font-black text-obsidian-blood md:text-pure-snow tracking-tighter uppercase italic">NustPulse</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -115,13 +115,13 @@ export const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-3 text-pure-snow hover:bg-pure-snow/10 rounded-lg transition-colors"
+            className="md:hidden p-3 text-obsidian-blood md:text-pure-snow hover:bg-obsidian-blood/5 rounded-lg transition-colors"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              <X className="h-7 w-7" />
+              <X className="h-6 w-6" />
             ) : (
-              <Menu className="h-7 w-7" />
+              <Menu className="h-6 w-6" />
             )}
           </button>
         </div>
@@ -129,14 +129,14 @@ export const Navbar = () => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-obsidian-blood/5 bg-pure-snow shadow-2xl overflow-hidden">
-          <div className="container mx-auto px-6 py-10 space-y-6">
+        <div className="md:hidden border-t border-obsidian-blood/5 bg-pure-snow shadow-2xl overflow-hidden animate-in slide-in-from-top duration-300">
+          <div className="container mx-auto px-6 py-8 space-y-6">
             {user ? (
               <>
-                <div className="px-6 py-4 bg-obsidian-blood/5 border border-obsidian-blood/10 text-obsidian-blood text-sm font-black uppercase tracking-widest text-center rounded-lg">
-                  {user.name}
+                <div className="px-4 py-3 bg-obsidian-blood/5 border border-obsidian-blood/10 text-obsidian-blood text-[10px] font-black uppercase tracking-widest text-center rounded-lg">
+                  Logged in as: {user.name}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {privateLinks.map((link) => {
                     const isActive = location.pathname === link.path;
                     const Icon = link.icon;
@@ -146,28 +146,35 @@ export const Navbar = () => {
                         to={link.path}
                         onClick={() => setMobileMenuOpen(false)}
                         className={cn(
-                          "flex items-center gap-5 px-6 py-4 text-[11px] font-black uppercase tracking-widest transition-all duration-300 rounded-md",
+                          "flex items-center gap-4 px-4 py-4 text-[11px] font-black uppercase tracking-widest transition-all duration-300 rounded-md",
                           isActive
-                            ? "bg-pure-snow text-obsidian-blood shadow-lg"
-                            : "text-pure-snow hover:text-white"
+                            ? "bg-obsidian-blood text-pure-snow shadow-lg"
+                            : "text-obsidian-blood hover:bg-obsidian-blood/5"
                         )}
                       >
-                        <Icon className="h-5 w-5" />
+                        <Icon className="h-4 w-4" />
                         {link.name}
                       </Link>
                     );
                   })}
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-4 px-4 py-4 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-all duration-300 rounded-md"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
                 </div>
               </>
             ) : (
               <div className="space-y-4">
                 <Button
                   variant="default"
-                  className="w-full h-14 rounded-xl bg-pure-snow text-obsidian-blood font-black italic uppercase tracking-widest text-[10px] shadow-xl"
+                  className="w-full h-14 rounded-xl bg-obsidian-blood text-pure-snow font-black italic uppercase tracking-widest text-[10px] shadow-xl"
                   asChild
                 >
                   <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                    Login
+                    Login to Portal
                   </Link>
                 </Button>
               </div>

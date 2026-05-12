@@ -108,23 +108,23 @@ const Deadlines = () => {
     <div className="min-h-screen bg-pure-snow pb-20">
       <Navbar />
 
-      <main className="pt-28 px-6">
+      <main className="pt-24 md:pt-28 px-4 md:px-6">
         <div className="container mx-auto max-w-4xl">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
-            <div className="space-y-1">
-              <h1 className="text-4xl font-black text-obsidian-blood uppercase tracking-tight italic">My Deadlines</h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 md:mb-12">
+            <div className="space-y-1 text-center sm:text-left">
+              <h1 className="text-3xl md:text-4xl font-black text-obsidian-blood uppercase tracking-tight italic">My Deadlines</h1>
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-obsidian-blood/40">
                 {deadlines.length} Active Deadlines • Personal List
               </p>
             </div>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center sm:items-end gap-2">
               <Button
                 variant="default"
                 size="lg"
                 onClick={handleSync}
                 disabled={syncing}
-                className="h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
+                className="w-full sm:w-auto h-12 md:h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-[10px] md:text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 border-0 transition-all"
               >
                 {syncing ? (
                   <>
@@ -138,14 +138,14 @@ const Deadlines = () => {
                   </>
                 )}
               </Button>
-              <p className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/30">
+              <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-obsidian-blood/30 text-center sm:text-right">
                 Sync LMS & auto-remove submitted tasks
               </p>
             </div>
           </div>
 
           {/* Subject Filter */}
-          <div className="bg-pure-snow border border-obsidian-blood/5 p-6 rounded-2xl mb-10 shadow-sm">
+          <div className="bg-pure-snow border border-obsidian-blood/5 p-4 md:p-6 rounded-2xl mb-8 md:mb-10 shadow-sm">
             <div className="flex items-center gap-6 overflow-x-auto pb-2 scrollbar-none">
               <div className="flex items-center gap-3 shrink-0">
                 <div className="p-2 bg-obsidian-blood/5 rounded-lg">

@@ -49,12 +49,12 @@ const Dashboard = () => {
     <div className="min-h-screen bg-pure-snow pb-20">
       <Navbar />
 
-      <main className="pt-28 px-6">
+      <main className="pt-24 md:pt-28 px-4 md:px-6">
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic mb-2">Dashboard</h1>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-obsidian-blood/40">
+          <div className="mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-5xl font-black text-obsidian-blood uppercase tracking-tighter italic mb-2">Dashboard</h1>
+            <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-obsidian-blood/40">
               System Health • Weekly Workload Overview
             </p>
           </div>
@@ -131,11 +131,11 @@ const Dashboard = () => {
           
           {/* Agenda Section */}
           <div className="mb-12">
-            <div className="bg-fired-cream px-8 py-4 rounded-t-2xl border-b border-obsidian-blood/5 flex items-center justify-between">
-              <h3 className="text-xs font-black text-pure-snow uppercase tracking-[0.2em]">
+            <div className="bg-fired-cream px-6 md:px-8 py-4 rounded-t-2xl border-b border-obsidian-blood/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+              <h3 className="text-[10px] md:text-xs font-black text-pure-snow uppercase tracking-[0.2em]">
                 Agenda • Weekly Pulse
               </h3>
-              <span className="text-[10px] font-black text-pure-snow uppercase tracking-widest italic">
+              <span className="text-[8px] md:text-[10px] font-black text-pure-snow uppercase tracking-widest italic">
                 {summary?.upcoming_deadlines} Total Items
               </span>
             </div>
@@ -193,13 +193,13 @@ const Dashboard = () => {
           <div className="grid sm:grid-cols-2 gap-6">
             <Link
               to="/deadlines"
-              className="bg-pure-snow border border-obsidian-blood/5 p-10 rounded-2xl group hover:border-fired-cream/30 transition-all shadow-sm"
+              className="bg-pure-snow border border-obsidian-blood/5 p-6 md:p-10 rounded-2xl group hover:border-fired-cream/30 transition-all shadow-sm"
             >
               <div className="flex flex-col gap-2">
-                <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
+                <h3 className="text-lg md:text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
                   My Deadlines
                 </h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
+                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
                   Manage personal academic deadlines
                 </p>
               </div>
@@ -207,13 +207,13 @@ const Dashboard = () => {
 
             <Link
               to="/universal-pulse"
-              className="bg-pure-snow border border-obsidian-blood/5 p-10 rounded-2xl group hover:border-fired-cream/30 transition-all shadow-sm"
+              className="bg-pure-snow border border-obsidian-blood/5 p-6 md:p-10 rounded-2xl group hover:border-fired-cream/30 transition-all shadow-sm"
             >
               <div className="flex flex-col gap-2">
-                <h3 className="text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
+                <h3 className="text-lg md:text-xl font-black text-obsidian-blood uppercase tracking-tight italic group-hover:text-fired-cream transition-colors">
                   Global Stream
                 </h3>
-                <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
+                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">
                   Synchronize with university LMS
                 </p>
               </div>

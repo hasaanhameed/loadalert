@@ -23,7 +23,7 @@ export const StatsCard = ({
   return (
     <div
       className={cn(
-        "bg-pure-snow border-l-4 border-t border-r border-b p-8 rounded-2xl transition-all duration-300 hover:shadow-xl group",
+        "bg-pure-snow border-l-4 border-t border-r border-b p-6 md:p-8 rounded-2xl transition-all duration-300 hover:shadow-xl group",
         variantStyles[variant]
       )}
     >
