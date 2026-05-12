@@ -1,102 +1,79 @@
-# NustPulse: Academic Workload and Stress Analytics System
+# NustPulse: High-Precision Academic Monitoring System
 
-NustPulse is a comprehensive full-stack application designed to aggregate academic deadlines, visualize workload distribution, and provide analytical insights into student stress levels. By integrating directly with university Learning Management Systems (LMS), the platform transforms fragmented assignment data into a cohesive, actionable dashboard that facilitates better time management and mental health awareness.
+**PROPRIETARY AND CONFIDENTIAL**  
+*This repository and its contents are the sole property of the author. Unauthorized copying, distribution, or use of this codebase is strictly prohibited.*
 
-## Core Features
+---
 
-### 1. Automated LMS Synchronization & Pruning
-The system features a robust synchronization engine that interfaces with Moodle-based university portals. 
-- **Auto-Sync**: Securely fetches assignment schedules, quiz deadlines, and project timelines.
-- **Smart Pruning**: Automatically detects when a student has submitted an assignment on the LMS and removes it from the NustPulse dashboard to keep the workspace clutter-free.
+## System Overview
+**Live Production URL**: [nustpulse.com](https://nustpulse.com)
 
-### 2. Proactive Gmail Notifications
-A background notification engine keeps students ahead of their workload via `nustpulse@gmail.com`:
-- **Real-Time Alerts**: Instant emails sent when new assignments are detected in the LMS feed.
-- **Deadline Reminders**: Automated warnings sent for critical tasks approaching their 3-day window.
-- **Gmail Nudge**: An intelligent UI component that prompts students to connect their accounts for real-time updates if they haven't already done so.
+NustPulse is a high-fidelity academic management platform engineered for NUST students. The system centralizes fragmented data from university Learning Management Systems (LMS), transforming it into a cohesive dashboard for workload management and stress reduction. It utilizes an asynchronous background engine to monitor deadlines and automate student notifications via Gmail.
 
-### 3. Universal Pulse Feed
-A centralized global stream that displays all academic activities retrieved from the LMS. This feed allows users to browse upcoming tasks across all enrolled modules, offering a high-level overview of the academic horizon before items are committed to the personal dashboard.
+## Implementation Details
 
-### 4. Precision Workload Analytics
-The dashboard implements sophisticated visualization tools to quantify workload:
-- **Weekly Load Distribution**: A graphical representation of deadline density over a rolling 7-day window.
-- **Module Impact Analysis**: A breakdown of workload concentration by course, identifying which subjects are driving the highest stress levels.
-- **Daily Agenda System**: A granular view of tasks scheduled for specific dates, including precise timing and course metadata.
+### Backend Architecture (FastAPI & Celery)
+The backend is built using FastAPI, leveraging asynchronous programming for high concurrency.
+- **Data Persistence**: Utilizes PostgreSQL hosted on Supabase, interfaced via SQLAlchemy ORM for type-safe database operations.
+- **Asynchronous Task Queue**: Implements Celery with Upstash Redis as the message broker. This handles long-running LMS synchronization tasks and notification scheduling without blocking the main API thread.
+- **Scheduled Synchronization**: Celery Beat is configured to trigger a system-wide LMS refresh daily at 10:00 PM PKT, ensuring data remains current.
+- **Security & Encryption**: Sensitive LMS credentials are never stored in plaintext. The system uses Fernet symmetric encryption (cryptography library) to secure credentials at rest.
+- **Authentication**: Implements OAuth2 with JWT (JSON Web Tokens) for secure session management and Google OAuth for secondary notification account linkage.
 
-### 5. Personal Task Orchestration
-Beyond automated syncing, users can manually manage their academic commitments. Features include the ability to "pin" critical LMS items to the main dashboard, create custom personal deadlines, and categorize tasks by priority and course module.
+### Frontend Architecture (React & Vite)
+The frontend is a modern Single Page Application (SPA) built with React 18 and Vite.
+- **Design System**: A custom-engineered "Obsidian Blood" and "Pure Snow" aesthetic. It prioritizes high-contrast typography and minimalist layout to reduce cognitive load during intense academic periods.
+- **State Management**: Implements a Context-driven architecture for global user state and authentication persistence.
+- **Routing**: Client-side routing via React Router, with a custom `vercel.json` configuration to handle SPA routing in the production environment.
+- **Component Library**: Utilizes Radix UI and Lucide-React for accessible, high-fidelity interactive elements.
 
-## Technical Architecture
+### Deployment & Infrastructure
+- **Containerization**: Multi-stage Docker builds are used to minimize image size and maximize security for both frontend and backend services.
+- **Cloud Hosting**: Backend services (API, Worker, Beat) are hosted on Railway as independent containerized services.
+- **Edge Delivery**: The frontend is deployed to Vercel, ensuring low-latency delivery of the application assets.
+- **Managed Services**: Leverages Supabase for database management and Upstash for serverless Redis, ensuring high availability without manual infrastructure maintenance.
 
-NustPulse follows a modern, decoupled architecture designed for scalability and performance:
+## Feature Set
 
-### Frontend
-- **Framework**: React 18 with TypeScript for type-safe development.
-- **Tooling**: Vite for optimized builds and rapid development.
-- **Styling**: Vanilla CSS utilizing a custom design system focused on high-contrast, professional aesthetics ("Obsidian Blood" & "Pure Snow").
-- **UI Components**: Built on top of Radix UI (via shadcn/ui) for accessibility and consistent behavior.
-- **State Management**: Context-driven architecture for authentication and global application state.
+### 1. LMS Pulse Sync
+Direct synchronization with university portal accounts. The system performs secure scraping of the Moodle-based LMS to retrieve assignment titles, course metadata, and precise due dates.
 
-### Backend
-- **Framework**: FastAPI (Python 3.11) for high-performance, asynchronous API execution.
-- **Database**: PostgreSQL (Supabase) interfaced via SQLAlchemy ORM.
-- **Task Queue**: **Celery** with **Redis** for background synchronization and notification scheduling.
-- **Email Engine**: **FastAPI-Mail** with SMTP integration for automated student alerts.
-- **Security**: **Fernet (Cryptography)** for encrypting LMS credentials and **JWT** for secure user sessions.
+### 2. Smart Pruning Engine
+An intelligent data management layer that cross-references user submissions. Once a task is marked as submitted on the LMS, the pruning engine automatically removes it from the NustPulse dashboard, maintaining a high-signal, zero-noise workspace.
 
-### Infrastructure
-- **Containerization**: Docker and Docker Compose orchestration for unified environment parity.
-- **Reverse Proxy**: Nginx acting as a high-performance entry point for both services.
-- **Scheduler**: Celery Beat for periodic system-wide LMS health checks and data refreshes.
+### 3. Proactive Gmail Notifications
+A dual-layer notification system:
+- **Instant Alerts**: Users receive immediate Gmail notifications when a new assignment is detected in the global stream.
+- **Proximity Reminders**: Automated alerts are triggered 3 days before any deadline to ensure sufficient preparation time.
+
+### 4. Universal Pulse (Global Stream)
+A discovery feed that displays academic activity across all monitored sections. Users can browse assignments and "pin" relevant items to their personal dashboard, facilitating collaboration and early awareness.
+
+### 5. Workload Analytics Dashboard
+Provides quantifiable insights into academic stress:
+- **Daily Agenda**: A granular breakdown of tasks for the current 24-hour cycle.
+- **Weekly Load Intensity**: A visual distribution of deadlines over a 7-day rolling window, allowing students to identify upcoming peak stress periods.
 
 ## Project Structure
-
 ```text
 NustPulse/
-├── nustpulse_backend/       # FastAPI application logic, Celery tasks, and models
+├── nustpulse_backend/       # FastAPI Core, Celery Tasks, Encryption logic, and Models
+│   ├── app/                 # Application source code
+│   └── docker/              # Production-grade Dockerfile
 ├── nustpulse_frontend/      # React/Vite source code and UI components
-├── nginx/                   # Reverse proxy configuration
-├── docker-compose.yml       # Service orchestration for local development
+│   ├── src/                 # React components and pages
+│   └── vercel.json          # SPA routing configuration for Vercel
+├── docker-compose.yml       # Local orchestration for development parity
 └── README.md                # System documentation
 ```
 
-## Setup and Installation
+## Legal and Licensing
 
-### Prerequisites
-- Docker and Docker Compose
-- Node.js 18+ (for manual frontend development)
-- Python 3.11+ (for manual backend development)
-- A Redis instance (included in Docker setup)
+**Copyright (c) 2026 NustPulse. All Rights Reserved.**
 
-### Containerized Deployment (Recommended)
-1. Clone the repository and navigate to the root directory.
-2. Configure environment variables in `.env` files within `nustpulse_backend/` and `nustpulse_frontend/`.
-3. Execute the orchestration command:
-   ```bash
-   docker-compose up --build
-   ```
-4. Access the application at `http://localhost`.
+This software is proprietary and confidential. Access to this codebase is restricted to authorized individuals only.
+- **No Redistribution**: You may not distribute or sell this software.
+- **No Modification**: You may not create derivative works from this codebase.
+- **No Reverse Engineering**: Decompilation or analysis for the purpose of replication is strictly prohibited.
 
-### Manual Development Setup
-#### Backend
-1. Navigate to `nustpulse_backend/`.
-2. Install dependencies: `pip install -r requirements.txt`.
-3. Ensure Redis is running locally.
-4. Run the development server: `uvicorn app.main:app --reload`.
-5. Start Celery worker: `celery -A app.core.celery_app worker --loglevel=info`.
-
-#### Frontend
-1. Navigate to `nustpulse_frontend/`.
-2. Install dependencies: `npm install`.
-3. Start the Vite development server: `npm run dev`.
-
-## License
-
-Copyright (c) 2026 NustPulse. All Rights Reserved.
-
-This software is proprietary and confidential. Access to this codebase is restricted to authorized individuals only. Unauthorized copying of this file, via any medium, is strictly prohibited.
-
-## Disclaimer
-
-NustPulse is an independent academic tool and is not officially affiliated with or endorsed by any university or Learning Management System provider.
+NustPulse is an independent academic tool and is not officially affiliated with or endorsed by NUST or any LMS provider.
