@@ -36,9 +36,9 @@ class NotificationService:
                 <p style="margin: 5px 0; color: #666;">Course: {deadline.course_name or "General"}</p>
                 <p style="margin: 5px 0; font-weight: bold;">Due Date: {deadline.due_date.strftime("%B %d, %Y at %I:%M %p")}</p>
             </div>
-            <p>Head over to <a href="http://loadalert.com/universal-pulse" style="color: #8B0000; text-decoration: none; font-weight: bold;">Universal Pulse</a> to pin this to your list.</p>
+            <p>Head over to <a href="http://nustpulse.com/universal-pulse" style="color: #8B0000; text-decoration: none; font-weight: bold;">Universal Pulse</a> to pin this to your list.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">LoadAlert • Academic Precision</p>
+            <p style="font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">NustPulse • Academic Precision</p>
         </div>
         """
 
@@ -72,7 +72,7 @@ class NotificationService:
             </div>
             <p>Don't let it slip! Keep your pulse steady.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">LoadAlert • Academic Precision</p>
+            <p style="font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">NustPulse • Academic Precision</p>
         </div>
         """
 

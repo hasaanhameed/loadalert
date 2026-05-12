@@ -3,7 +3,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # App Settings
-    APP_NAME: str = "LoadAlert"
+    APP_NAME: str = "NustPulse"
     DEBUG: bool = False
     
     # Database
