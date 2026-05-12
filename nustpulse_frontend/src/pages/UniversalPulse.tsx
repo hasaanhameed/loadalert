@@ -114,25 +114,30 @@ const UniversalPulse = () => {
                 LMS Global Feed • All Sections • {deadlines.length} Active Items
               </p>
             </div>
-            <Button
-              variant="default"
-              size="lg"
-              onClick={handleSync}
-              disabled={syncing}
-              className="h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
-            >
-              {syncing ? (
-                <>
-                  <RefreshCcw className="h-4 w-4 mr-3 animate-spin" />
-                  Syncing...
-                </>
-              ) : (
-                <>
-                  <RefreshCcw className="h-4 w-4 mr-3" />
-                  Sync Feed
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col items-center gap-2">
+              <Button
+                variant="default"
+                size="lg"
+                onClick={handleSync}
+                disabled={syncing}
+                className="h-14 px-8 rounded-xl bg-fired-cream text-obsidian-blood text-xs font-black uppercase tracking-[0.2em] shadow-lg hover:bg-fired-cream/80 hover:scale-[1.02] active:scale-[0.98] border-0 transition-all duration-300"
+              >
+                {syncing ? (
+                  <>
+                    <RefreshCcw className="h-4 w-4 mr-3 animate-spin" />
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCcw className="h-4 w-4 mr-3" />
+                    Sync Feed
+                  </>
+                )}
+              </Button>
+              <p className="text-[9px] font-black uppercase tracking-widest text-obsidian-blood/30">
+                Refresh feed & clear submitted items
+              </p>
+            </div>
           </div>
 
           {/* Subject Filter */}
