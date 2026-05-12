@@ -4,15 +4,23 @@ import { useUser } from "@/context/UserContext";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/axios";
 
 const Profile = () => {
   const { user, setUser } = useUser();
   const { updateProfile, isUpdatingProfile } = useUsers();
-  const { connectGoogle, logout } = useAuth();
+  const { connectGoogle } = useAuth();
+  const navigate = useNavigate();
 
   const [notifEnabled, setNotifEnabled] = useState(user?.notifications_enabled ?? true);
+
+  const handleSignOut = () => {
+    setUser(null);
+    sessionStorage.removeItem("gmail_nudge_seen");
+    navigate("/");
+  };
 
   // Refresh user data on mount to get latest connection status
   useEffect(() => {
@@ -175,7 +183,7 @@ const Profile = () => {
           {/* Actions */}
           <div className="bg-pure-snow border border-obsidian-blood/5 rounded-2xl overflow-hidden shadow-sm">
             <button
-              onClick={logout}
+              onClick={handleSignOut}
               className="w-full p-8 flex items-center gap-6 hover:bg-obsidian-blood/5 transition-all text-left group border-l-4 border-l-transparent hover:border-l-red-500"
             >
               <div className="p-3 rounded-xl bg-red-500/5 group-hover:bg-red-500/10 transition-colors">
