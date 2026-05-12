@@ -41,8 +41,8 @@ const Index = () => {
 
       {/* Hero Section - Strict Obsidian Editorial */}
       <section className="relative pt-48 pb-32 px-6 overflow-hidden bg-pure-snow min-h-[80vh] flex items-center">
-        {/* Full-height DNA Helix Background */}
-        <div className="absolute inset-y-0 right-0 w-full lg:w-1/2 opacity-100 pointer-events-none z-0">
+        {/* Full-height DNA Helix Background - Hidden on mobile */}
+        <div className="absolute inset-y-0 right-0 w-full lg:w-1/2 opacity-100 pointer-events-none z-0 hidden lg:block">
           <DnaHelix />
         </div>
 
