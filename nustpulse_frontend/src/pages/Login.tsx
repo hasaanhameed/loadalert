@@ -71,7 +71,7 @@ const Login = () => {
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name.bscs23seecs"
+                placeholder="e.g. name.bscs23seecs"
                 className="bg-fired-cream border-obsidian-blood/5 focus:border-obsidian-blood focus:bg-fired-cream h-14 rounded-xl font-medium ring-offset-0 focus-visible:ring-0"
                 disabled={isLoading}
                 required
