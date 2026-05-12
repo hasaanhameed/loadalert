@@ -3,8 +3,8 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # App Settings
-    APP_NAME: str = "NustPulse"
-    DEBUG: bool = False
+    APP_NAME: str
+    DEBUG: bool
     
     # Database
     DATABASE_URL: str
@@ -12,17 +12,17 @@ class Settings(BaseSettings):
     
     # Auth
     SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     # SMTP Settings
-    MAIL_USERNAME: str = "nustpulse@gmail.com"
-    MAIL_PASSWORD: str = "qdes remz sukb otrr"
-    MAIL_FROM: str = "nustpulse@gmail.com"
-    MAIL_PORT: int = 587
-    MAIL_SERVER: str = "smtp.gmail.com"
-    MAIL_STARTTLS: bool = True
-    MAIL_SSL_TLS: bool = False
+    MAIL_USERNAME: str
+    MAIL_PASSWORD: str
+    MAIL_FROM: str
+    MAIL_PORT: int
+    MAIL_SERVER: str
+    MAIL_STARTTLS: bool
+    MAIL_SSL_TLS: bool
 
     # Google OAuth
     GOOGLE_CLIENT_ID: str
