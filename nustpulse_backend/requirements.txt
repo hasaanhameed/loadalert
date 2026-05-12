@@ -11,7 +11,7 @@ python-multipart
 passlib[bcrypt]
 httpx 
 beautifulsoup4 
-cryptography
+cryptography==47.0.0
 celery
 redis
 fastapi-mail
