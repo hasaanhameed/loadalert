@@ -1,5 +1,6 @@
 import logging
 import base64
+import pytz
 from email.mime.text import MIMEText
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -9,6 +10,7 @@ from app.models.deadline import Deadline
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
+PKT = pytz.timezone("Asia/Karachi")
 
 def _get_gmail_service():
     """
@@ -62,6 +64,7 @@ class NotificationService:
         if not user.notification_email or not user.notifications_enabled:
             return
 
+        local_due_date = deadline.due_date.astimezone(PKT)
         html = f"""
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #8B0000; text-transform: uppercase; font-style: italic;">New Deadline Added</h2>
@@ -70,7 +73,7 @@ class NotificationService:
             <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #8B0000;">
                 <h3 style="margin-top: 0;">{deadline.title}</h3>
                 <p style="margin: 5px 0; color: #666;">Course: {deadline.course_name or "General"}</p>
-                <p style="margin: 5px 0; font-weight: bold;">Due Date: {deadline.due_date.strftime("%B %d, %Y at %I:%M %p")}</p>
+                <p style="margin: 5px 0; font-weight: bold;">Due Date: {local_due_date.strftime("%B %d, %Y at %I:%M %p")}</p>
             </div>
             <p>Head over to <a href="https://nustpulse.com/universal-pulse" style="color: #8B0000; text-decoration: none; font-weight: bold;">Universal Pulse</a> to pin this to your list.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
@@ -95,6 +98,7 @@ class NotificationService:
         status_text = "DUE TODAY" if days_left == 0 else f"{days_left} Days Remaining"
         subject_text = "🚨 DUE TODAY" if days_left == 0 else f"Deadline Reminder: {days_left} days left"
 
+        local_due_date = deadline.due_date.astimezone(PKT)
         html = f"""
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #8B0000; text-transform: uppercase; font-style: italic;">{status_text}</h2>
@@ -103,7 +107,7 @@ class NotificationService:
             <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 4px solid #8B0000;">
                 <h3 style="margin-top: 0;">{deadline.title}</h3>
                 <p style="margin: 5px 0; color: #666;">Course: {deadline.course_name or "General"}</p>
-                <p style="margin: 5px 0; font-weight: bold; color: #8B0000;">DUE: {deadline.due_date.strftime("%B %d, %Y at %I:%M %p")}</p>
+                <p style="margin: 5px 0; font-weight: bold; color: #8B0000;">DUE: {local_due_date.strftime("%B %d, %Y at %I:%M %p")}</p>
             </div>
             <p>Stay ahead of the curve.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
