@@ -1,38 +1,49 @@
 import logging
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+import smtplib
+import ssl
+import asyncio
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from app.core.config import settings
 from app.models.deadline import Deadline
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
-# Build SMTP config entirely from environment variables.
-# Railway (and most cloud providers) block outbound port 465 (legacy SMTPS).
-# Use port 587 with STARTTLS, which is the modern standard and universally allowed.
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.MAIL_USERNAME,
-    MAIL_PASSWORD=settings.MAIL_PASSWORD,
-    MAIL_FROM=settings.MAIL_FROM,
-    MAIL_PORT=settings.MAIL_PORT,           # Should be 587 in env
-    MAIL_SERVER=settings.MAIL_SERVER,       # smtp.gmail.com
-    MAIL_STARTTLS=settings.MAIL_STARTTLS,   # Should be True in env
-    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,     # Should be False in env
-    USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True,
-    TIMEOUT=30
-)
-
 logger.info(
-    f"[SMTP] Configured: {settings.MAIL_SERVER}:{settings.MAIL_PORT} "
-    f"| STARTTLS={settings.MAIL_STARTTLS} | SSL={settings.MAIL_SSL_TLS}"
+    f"[SMTP] Config loaded: {settings.MAIL_SERVER}:{settings.MAIL_PORT} "
+    f"| STARTTLS={settings.MAIL_STARTTLS} | SSL={settings.MAIL_SSL_TLS} "
+    f"| USER={settings.MAIL_USERNAME}"
 )
 
-fm = FastMail(conf)
+
+def _send_email_sync(to: str, subject: str, html_body: str):
+    """
+    Sends an email using Python's built-in smtplib (synchronous).
+    Uses STARTTLS on port 587 — the standard that works on all cloud providers.
+    Call this via asyncio.to_thread() from async contexts.
+    """
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = settings.MAIL_FROM
+    msg["To"] = to
+    msg.attach(MIMEText(html_body, "html"))
+
+    context = ssl.create_default_context()
+
+    logger.info(f"[SMTP] Connecting to {settings.MAIL_SERVER}:{settings.MAIL_PORT}...")
+    with smtplib.SMTP(settings.MAIL_SERVER, settings.MAIL_PORT, timeout=30) as smtp:
+        smtp.ehlo()
+        smtp.starttls(context=context)
+        smtp.ehlo()
+        smtp.login(settings.MAIL_USERNAME, settings.MAIL_PASSWORD)
+        smtp.sendmail(settings.MAIL_FROM, [to], msg.as_string())
+    logger.info(f"[SMTP] Email sent successfully to {to}")
+
 
 class NotificationService:
     @staticmethod
     async def send_new_deadline_notification(user: User, deadline: Deadline):
-        logger.info(f"Sending new deadline email to {user.notification_email} for '{deadline.title}'")
         if not user.notification_email or not user.notifications_enabled:
             return
 
@@ -52,15 +63,13 @@ class NotificationService:
         </div>
         """
 
-        message = MessageSchema(
-            subject=f"Pulse Alert: {deadline.title}",
-            recipients=[user.notification_email],
-            body=html,
-            subtype=MessageType.html
-        )
-
         try:
-            await fm.send_message(message)
+            await asyncio.to_thread(
+                _send_email_sync,
+                user.notification_email,
+                f"Pulse Alert: {deadline.title}",
+                html
+            )
             logger.info(f"New deadline notification sent to {user.notification_email}")
         except Exception as e:
             logger.error(f"Failed to send notification to {user.notification_email}: {e}")
@@ -71,7 +80,7 @@ class NotificationService:
             return
 
         status_text = "DUE TODAY" if days_left == 0 else f"{days_left} Days Remaining"
-        
+
         html = f"""
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
             <h2 style="color: #8B0000; text-transform: uppercase; font-style: italic;">{status_text}</h2>
@@ -90,15 +99,13 @@ class NotificationService:
 
         subject_text = "🚨 DUE TODAY" if days_left == 0 else f"Deadline Reminder: {days_left} days left"
 
-        message = MessageSchema(
-            subject=f"{subject_text} for {deadline.title}",
-            recipients=[user.notification_email],
-            body=html,
-            subtype=MessageType.html
-        )
-
         try:
-            await fm.send_message(message)
+            await asyncio.to_thread(
+                _send_email_sync,
+                user.notification_email,
+                f"{subject_text} for {deadline.title}",
+                html
+            )
             logger.info(f"Proximity reminder sent to {user.notification_email} for {deadline.title}")
         except Exception as e:
             logger.error(f"Failed to send reminder to {user.notification_email}: {e}")
