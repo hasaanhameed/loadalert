@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.core.oauth2 import get_current_user
+from app.core.config import settings
 from app.services.user_service import UserService
-from app.services.notification_service import NotificationService
+from app.services.notification_service import NotificationService, conf
 from app.schemas.user import UserResponse, UserUpdate
 from app.models.user import User
 
@@ -31,14 +32,43 @@ async def send_test_email(
 ):
     """Sends a test email to the current user to verify SMTP settings."""
     from app.models.deadline import Deadline
+    from app.services.notification_service import fm
+    from fastapi_mail import MessageSchema, MessageType
     from datetime import datetime, timedelta
-    
-    # Create a dummy deadline for testing
-    dummy_deadline = Deadline(
-        title="NustPulse Connection Test",
-        course_name="System Check",
-        due_date=datetime.now() + timedelta(days=1)
+
+    smtp_info = {
+        "server": settings.MAIL_SERVER,
+        "port": settings.MAIL_PORT,
+        "starttls": settings.MAIL_STARTTLS,
+        "ssl_tls": settings.MAIL_SSL_TLS,
+        "from": settings.MAIL_FROM,
+        "recipient": current_user.notification_email or current_user.email,
+    }
+
+    recipient = current_user.notification_email or current_user.email
+    if not recipient:
+        raise HTTPException(status_code=400, detail="No email address set on your profile.")
+
+    message = MessageSchema(
+        subject="NustPulse — SMTP Connection Test",
+        recipients=[recipient],
+        body=f"""
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #8B0000; text-transform: uppercase; font-style: italic;">SMTP Test Successful</h2>
+            <p>Hi <b>{current_user.name}</b>,</p>
+            <p>Your NustPulse email notifications are correctly configured and working.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1px;">NustPulse • Academic Precision</p>
+        </div>
+        """,
+        subtype=MessageType.html
     )
-    
-    await NotificationService.send_proximity_reminder(current_user, dummy_deadline, 1)
-    return {"message": "Test email sent successfully"}
+
+    try:
+        await fm.send_message(message)
+        return {"message": "Test email sent successfully.", "smtp_config": smtp_info}
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"SMTP connection failed: {str(e)}. Config used: {smtp_info}"
+        )

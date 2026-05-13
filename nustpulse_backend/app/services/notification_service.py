@@ -6,18 +6,25 @@ from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
-# Hardcoded for production reliability verification
+# Build SMTP config entirely from environment variables.
+# Railway (and most cloud providers) block outbound port 465 (legacy SMTPS).
+# Use port 587 with STARTTLS, which is the modern standard and universally allowed.
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,
     MAIL_PASSWORD=settings.MAIL_PASSWORD,
     MAIL_FROM=settings.MAIL_FROM,
-    MAIL_PORT=465,
-    MAIL_SERVER="smtp.gmail.com",
-    MAIL_STARTTLS=False,
-    MAIL_SSL_TLS=True,
+    MAIL_PORT=settings.MAIL_PORT,           # Should be 587 in env
+    MAIL_SERVER=settings.MAIL_SERVER,       # smtp.gmail.com
+    MAIL_STARTTLS=settings.MAIL_STARTTLS,   # Should be True in env
+    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,     # Should be False in env
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
-    TIMEOUT=60
+    TIMEOUT=30
+)
+
+logger.info(
+    f"[SMTP] Configured: {settings.MAIL_SERVER}:{settings.MAIL_PORT} "
+    f"| STARTTLS={settings.MAIL_STARTTLS} | SSL={settings.MAIL_SSL_TLS}"
 )
 
 fm = FastMail(conf)
@@ -25,7 +32,7 @@ fm = FastMail(conf)
 class NotificationService:
     @staticmethod
     async def send_new_deadline_notification(user: User, deadline: Deadline):
-        logger.info(f"Attempting to send New Deadline email via {conf.MAIL_SERVER}:{conf.MAIL_PORT} (SSL: {conf.MAIL_SSL_TLS})")
+        logger.info(f"Sending new deadline email to {user.notification_email} for '{deadline.title}'")
         if not user.notification_email or not user.notifications_enabled:
             return
 
