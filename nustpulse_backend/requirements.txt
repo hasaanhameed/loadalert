@@ -14,4 +14,6 @@ beautifulsoup4
 cryptography==47.0.0
 celery
 redis
-fastapi-mail
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2

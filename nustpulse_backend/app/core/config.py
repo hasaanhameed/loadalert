@@ -15,14 +15,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
-    # SMTP Settings
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_PORT: int
-    MAIL_SERVER: str
-    MAIL_STARTTLS: bool = True
-    MAIL_SSL_TLS: bool = False
+    # Gmail API (Used to bypass Railway SMTP block)
+    GMAIL_REFRESH_TOKEN: str
+    MAIL_FROM: str      # The sender address (e.g. nustpulse@gmail.com)
 
     # Google OAuth
     GOOGLE_CLIENT_ID: str
