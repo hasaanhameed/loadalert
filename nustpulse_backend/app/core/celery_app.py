@@ -28,8 +28,8 @@ celery_app.conf.beat_schedule = {
         "task": "sync_all_users",
         "schedule": crontab(minute=0, hour="*/4"),
     },
-    "daily-reminders-at-1110am": {
+    "daily-reminders-at-1120am": {
         "task": "daily_reminder_check",
-        "schedule": crontab(minute=10, hour=11),
+        "schedule": crontab(minute=20, hour=11),
     },
 }

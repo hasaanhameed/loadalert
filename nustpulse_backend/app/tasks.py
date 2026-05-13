@@ -77,16 +77,23 @@ def daily_reminder_check():
         loop = asyncio.get_event_loop()
         
         for deadline in upcoming:
+            user = deadline.user
+            logger.info(f"Processing reminder for {user.notification_email} - {deadline.title}")
+
             # Check if we already sent a reminder today
             if deadline.last_reminder_sent_at and deadline.last_reminder_sent_at.date() == today:
+                logger.info(f"Skipping {deadline.title}: Already sent today.")
                 continue
                 
-            user = deadline.user
             days_left = (deadline.due_date.date() - today).days
+            logger.info(f"Days left for {deadline.title}: {days_left}")
             
             if user.notification_email and user.notifications_enabled:
+                logger.info(f"TRIGGERING EMAIL to {user.notification_email} for {deadline.title}")
                 loop.run_until_complete(NotificationService.send_proximity_reminder(user, deadline, days_left))
                 deadline.last_reminder_sent_at = datetime.now()
+            else:
+                logger.info(f"Skipping {deadline.title}: User notifications disabled or email missing.")
         
         db.commit()
         logger.info("Daily reminder check completed.")
