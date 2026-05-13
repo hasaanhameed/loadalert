@@ -6,14 +6,15 @@ from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
+# Hardcoded for production reliability verification
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,
     MAIL_PASSWORD=settings.MAIL_PASSWORD,
     MAIL_FROM=settings.MAIL_FROM,
-    MAIL_PORT=settings.MAIL_PORT,
-    MAIL_SERVER=settings.MAIL_SERVER,
-    MAIL_STARTTLS=settings.MAIL_STARTTLS,
-    MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
+    MAIL_PORT=465,
+    MAIL_SERVER="smtp.gmail.com",
+    MAIL_STARTTLS=False,
+    MAIL_SSL_TLS=True,
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True,
     TIMEOUT=60
@@ -24,6 +25,7 @@ fm = FastMail(conf)
 class NotificationService:
     @staticmethod
     async def send_new_deadline_notification(user: User, deadline: Deadline):
+        logger.info(f"Attempting to send New Deadline email via {conf.MAIL_SERVER}:{conf.MAIL_PORT} (SSL: {conf.MAIL_SSL_TLS})")
         if not user.notification_email or not user.notifications_enabled:
             return
 
