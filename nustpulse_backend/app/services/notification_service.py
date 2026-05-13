@@ -60,9 +60,11 @@ class NotificationService:
         if not user.notification_email or not user.notifications_enabled:
             return
 
+        status_text = "DUE TODAY" if days_left == 0 else f"{days_left} Days Remaining"
+        
         html = f"""
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-            <h2 style="color: #8B0000; text-transform: uppercase; font-style: italic;">{days_left} Days Remaining</h2>
+            <h2 style="color: #8B0000; text-transform: uppercase; font-style: italic;">{status_text}</h2>
             <p>Hi <b>{user.name}</b>,</p>
             <p>This is a reminder for your upcoming deadline:</p>
             <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #8B0000; margin: 20px 0;">
@@ -76,8 +78,10 @@ class NotificationService:
         </div>
         """
 
+        subject_text = "🚨 DUE TODAY" if days_left == 0 else f"Deadline Reminder: {days_left} days left"
+
         message = MessageSchema(
-            subject=f"Deadline Reminder: {days_left} days left for {deadline.title}",
+            subject=f"{subject_text} for {deadline.title}",
             recipients=[user.notification_email],
             body=html,
             subtype=MessageType.html
