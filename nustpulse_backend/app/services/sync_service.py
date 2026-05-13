@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.services.lms_service import LMSSession
@@ -54,7 +54,7 @@ class SyncService:
                     continue
 
                 synced_ids.append(lms_event_id)
-                due_date = datetime.fromtimestamp(timestart)
+                due_date = datetime.fromtimestamp(timestart, tz=timezone.utc)
 
                 existing = (
                     db.query(Deadline)
