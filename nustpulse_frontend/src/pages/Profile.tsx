@@ -15,21 +15,6 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [notifEnabled, setNotifEnabled] = useState(user?.notifications_enabled ?? true);
-  const [isSendingTest, setIsSendingTest] = useState(false);
-
-  const handleTestEmail = async () => {
-    setIsSendingTest(true);
-    try {
-      await api.post("/users/me/test-email");
-      // You could use a toast here if you have one, alert for now
-      alert("Test email sent! Check your inbox (including Spam/Promotions).");
-    } catch (err) {
-      console.error("Failed to send test email", err);
-      alert("Failed to send test email. Check your connection.");
-    } finally {
-      setIsSendingTest(false);
-    }
-  };
 
   const handleSignOut = () => {
     setUser(null);
@@ -119,7 +104,7 @@ const Profile = () => {
             <div className="p-8 border-b border-obsidian-blood/5 bg-fired-cream">
               <h3 className="text-xs font-black text-pure-snow uppercase tracking-[0.2em]">Alert Preferences</h3>
             </div>
-            
+
             <div className="p-8 space-y-8">
               {/* Email Setting - Google OAuth Version */}
               <div className="space-y-4">
@@ -132,14 +117,14 @@ const Profile = () => {
                     <p className="text-[10px] font-black uppercase tracking-widest text-obsidian-blood/40">Where we send your deadline alerts</p>
                   </div>
                 </div>
-                
+
                 {user?.notification_email ? (
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl bg-obsidian-blood/[0.02] border border-obsidian-blood/5 gap-4">
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className="w-2 h-2 rounded-full bg-fired-cream animate-pulse shadow-[0_0_8px_rgba(230,168,142,0.5)] shrink-0" />
                       <p className="font-bold text-obsidian-blood italic break-all text-xs md:text-sm">{user.notification_email}</p>
                     </div>
-                    <button 
+                    <button
                       onClick={handleDisconnectGoogle}
                       disabled={isUpdatingProfile}
                       className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-obsidian-blood/30 hover:text-red-500 transition-colors"
@@ -175,7 +160,7 @@ const Profile = () => {
                       </p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={handleToggleNotifications}
                     disabled={isUpdatingProfile}
                     className={cn(
@@ -190,24 +175,6 @@ const Profile = () => {
                       {isUpdatingProfile && <Loader2 className="h-3 w-3 animate-spin text-fired-cream" />}
                     </div>
                   </button>
-                </div>
-              )}
-
-              {/* Test Email Button - Only visible when connected */}
-              {user?.notification_email && (
-                <div className="pt-8 border-t border-obsidian-blood/5">
-                  <Button
-                    onClick={handleTestEmail}
-                    disabled={isSendingTest}
-                    className="w-full h-12 bg-pure-snow border border-obsidian-blood/10 text-obsidian-blood font-black uppercase italic tracking-widest text-[10px] rounded-xl hover:bg-fired-cream/5 hover:border-fired-cream/30 transition-all flex items-center justify-center gap-2 group"
-                  >
-                    {isSendingTest ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-fired-cream" />
-                    ) : (
-                      <Mail className="h-4 w-4 text-fired-cream group-hover:scale-110 transition-transform" />
-                    )}
-                    Send Test Email
-                  </Button>
                 </div>
               )}
             </div>
