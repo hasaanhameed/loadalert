@@ -42,12 +42,12 @@ async def send_test_email(
         "starttls": settings.MAIL_STARTTLS,
         "ssl_tls": settings.MAIL_SSL_TLS,
         "from": settings.MAIL_FROM,
-        "recipient": current_user.notification_email or current_user.email,
+        "recipient": current_user.notification_email,
     }
 
-    recipient = current_user.notification_email or current_user.email
+    recipient = current_user.notification_email
     if not recipient:
-        raise HTTPException(status_code=400, detail="No email address set on your profile.")
+        raise HTTPException(status_code=400, detail="No notification email set. Go to Profile → Alert Preferences and add one.")
 
     message = MessageSchema(
         subject="NustPulse — SMTP Connection Test",
