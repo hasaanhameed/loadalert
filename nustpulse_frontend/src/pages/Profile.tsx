@@ -15,20 +15,6 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [notifEnabled, setNotifEnabled] = useState(user?.notifications_enabled ?? true);
-  const [isSendingTest, setIsSendingTest] = useState(false);
-
-  const handleTestEmail = async () => {
-    setIsSendingTest(true);
-    try {
-      await api.post("/users/me/test-email");
-      alert("Test email sent! Check your inbox (including Spam/Promotions).");
-    } catch (err) {
-      console.error("Failed to send test email", err);
-      alert("Failed to send test email. Check your connection.");
-    } finally {
-      setIsSendingTest(false);
-    }
-  };
 
   const handleSignOut = () => {
     setUser(null);
@@ -189,24 +175,6 @@ const Profile = () => {
                       {isUpdatingProfile && <Loader2 className="h-3 w-3 animate-spin text-fired-cream" />}
                     </div>
                   </button>
-                </div>
-              )}
-
-              {/* Test Email Button - Only visible when connected */}
-              {user?.notification_email && (
-                <div className="pt-8 border-t border-obsidian-blood/5">
-                  <Button
-                    onClick={handleTestEmail}
-                    disabled={isSendingTest}
-                    className="w-full h-12 bg-pure-snow border border-obsidian-blood/10 text-obsidian-blood font-black uppercase italic tracking-widest text-[10px] rounded-xl hover:bg-fired-cream/5 hover:border-fired-cream/30 transition-all flex items-center justify-center gap-2 group"
-                  >
-                    {isSendingTest ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-fired-cream" />
-                    ) : (
-                      <Mail className="h-4 w-4 text-fired-cream group-hover:scale-110 transition-transform" />
-                    )}
-                    Send Test Email
-                  </Button>
                 </div>
               )}
             </div>
